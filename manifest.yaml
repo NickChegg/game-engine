@@ -1,0 +1,5 @@
+name: game-engine
+display_name: Game Engine (Party Games)
+description: A modular pop-out game engine for SillyTavern. Play Rock Paper Scissors, Old Maid, Karaoke, and more without cluttering the chat log.
+version: 1.0.0
+author: NickChegg

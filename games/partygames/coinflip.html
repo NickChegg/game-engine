@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Flip</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- MAIN GAME PANEL -->
+        <div class="panel" id="game-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            
+            <h2 class="text-center" style="margin-bottom: 20px;">Coin Flip</h2>
+
+            <!-- Scoreboard -->
+            <div class="score-panel" style="margin-bottom: 15px;">
+                <div class="score-box">
+                    <div class="score-title">Heads</div>
+                    <div class="score-value" id="score-heads">0</div>
+                </div>
+                <div class="score-box">
+                    <div class="score-title">Tails</div>
+                    <div class="score-value" id="score-tails">0</div>
+                </div>
+                <!-- THE SECRET EDGE STAT (Hidden by Default) -->
+                <div class="score-box" id="score-box-edge" style="display: none;">
+                    <div class="score-title" style="color: #f7768e;">Edge!</div>
+                    <div class="score-value" id="score-edge" style="color: #f7768e;">0</div>
+                </div>
+            </div>
+
+            <!-- Rolling textual log of the current run -->
+            <div id="flip-log" style="height: 100px; overflow-y: auto; background: #1a1b26; padding: 10px; border-radius: 5px; margin-bottom: 20px; font-size: 0.9em; color: #787c99;">
+                <div style="text-align: center; margin-top: 30px; opacity: 0.5;">Flip history will appear here...</div>
+            </div>
+
+            <div class="game-controls" id="game-controls">
+                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                    <button class="action-btn flip-btn" data-call="heads" style="margin-bottom: 0; background-color: #7aa2f7;">Call Heads</button>
+                    <button class="action-btn flip-btn" data-call="tails" style="margin-bottom: 0; background-color: #bb9af7;">Call Tails</button>
+                </div>
+                
+                <hr style="border: 1px solid #15161e; margin: 20px 0;">
+                
+                <!-- Notice we renamed it to "Finish" and there is no Reset button needed -->
+                <button class="action-btn end-btn" id="btn-end-game">🛑 Finish & Respond</button>
+            </div>
+        </div>
+
+        <!-- END GAME PANEL (Hidden by default) -->
+        <div class="panel" id="end-game-panel" style="display: none;">
+            <h2 class="text-center" style="color: #f7768e; margin-bottom: 10px;">Finished Flipping</h2>
+            <p id="end-stats" class="text-center" style="margin-bottom: 20px; font-size: 1.1em;"></p>
+            
+            <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Your Roleplay Response:</p>
+            <textarea id="end-rp-text" placeholder='e.g. "I can not believe it landed on its edge!"'></textarea>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="action-btn confirm-btn" id="btn-confirm-end" style="margin-bottom: 0;">Push to Chat</button>
+                <button class="action-btn cancel-btn" id="btn-cancel-end" style="margin-bottom: 0;">Return</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="coinflip.js"></script>
+</body>
+</html>

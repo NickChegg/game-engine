@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Party Games - Menu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app" style="max-width: 500px;"> <!-- Slightly wider to accommodate arrows -->
+        <div class="panel">
+            <h1 class="text-center" style="margin-bottom: 5px;">Party Games</h1>
+            <p id="status-text" class="text-center">Connected to SillyTavern</p>
+
+            <div class="carousel-wrapper">
+                
+                <!-- Left Navigation Arrow -->
+                <button id="prev-btn" class="nav-arrow">◄</button>
+
+                <!-- The Viewport -->
+                <div class="carousel-container">
+                    <div class="carousel-track" id="track">
+                        
+                        <!-- SLIDE 1: BASIC -->
+                        <div class="carousel-slide">
+                            <h3 class="category-title">Basic</h3>
+                            <div class="menu-grid">
+                                <a href="rps.html" class="action-btn">
+                                    ✊✋✌️ Rock, Paper, Scissors
+                                    <div class="menu-desc">A quick sudden-death match.</div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- SLIDE 2: CHANCE -->
+                        <div class="carousel-slide">
+                            <h3 class="category-title" style="color: #e0af68;">Chance</h3>
+                            <div class="menu-grid">
+                                <a href="coinflip.html" class="action-btn" style="background-color: #e0af68; color: #1a1b26;">
+                                    🪙 Coin Flip
+                                    <div class="menu-desc" style="color: #565f89;">Test your luck.</div>
+                                </a>
+                                <a href="drawstraws.html" class="action-btn" style="background-color: #9ece6a; color: #1a1b26;">
+                                    🥢 Draw Straws
+                                    <div class="menu-desc" style="color: #565f89;">Who gets the short straw?</div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- SLIDE 3: PARTY -->
+                        <div class="carousel-slide">
+                            <h3 class="category-title" style="color: #f7768e;">Party</h3>
+                            <div class="menu-grid">
+                                <a href="truthordare.html" class="action-btn" style="background-color: #f7768e; color: #1a1b26;">
+                                    🔥 Truth or Dare
+                                    <div class="menu-desc" style="color: #565f89;">Keep the turns in order.</div>
+                                </a>
+                                <a href="kinggame.html" class="action-btn" style="background-color: #bb9af7; color: #1a1b26;">
+                                    👑 The King Game
+                                    <div class="menu-desc" style="color: #565f89;">The King's word is absolute.</div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- SLIDE 4: CARDS -->
+                        <div class="carousel-slide">
+                            <h3 class="category-title" style="color: #7aa2f7;">Cards</h3>
+                            <div class="menu-grid">
+                                <a href="oldmaid.html" class="action-btn" style="background-color: #7aa2f7; color: #1a1b26;">
+                                    🃏 Old Maid
+                                    <div class="menu-desc" style="color: #565f89;">Don't get stuck with the Queen.</div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- SLIDE 5: SKILL -->
+                        <div class="carousel-slide">
+                            <h3 class="category-title" style="color: #89ddff;">Skill</h3>
+                            <div class="menu-grid">
+                                <a href="karaoke.html" class="action-btn" style="background-color: #89ddff; color: #1a1b26;">
+                                    🎤 Karaoke Night
+                                    <div class="menu-desc" style="color: #565f89;">Show off your rhythm and timing.</div>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right Navigation Arrow -->
+                <button id="next-btn" class="nav-arrow">►</button>
+
+            </div>
+            
+            <div class="text-center" style="margin-top: 15px;">
+                <small id="page-indicator" style="color: #565f89; font-weight: bold;">1 / 5</small>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script>
+        // Carousel Navigation Logic
+        const track = document.getElementById('track');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const slides = document.querySelectorAll('.carousel-slide');
+        const pageIndicator = document.getElementById('page-indicator');
+        
+        let currentIndex = 0;
+        
+        function updateCarousel() {
+            // Slide the track horizontally
+            track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            
+            // Disable arrows if at the beginning or end of the list
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === slides.length - 1;
+            
+            // Update the "1 / 5" text at the bottom
+            pageIndicator.innerText = `${currentIndex + 1} / ${slides.length}`;
+        }
+        
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCarousel();
+            }
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < slides.length - 1) {
+                currentIndex++;
+                updateCarousel();
+            }
+        });
+        
+        // Initialize the UI on load
+        updateCarousel();
+    </script>
+</body>
+</html>

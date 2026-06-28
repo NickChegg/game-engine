@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Old Maid</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .text-input, .num-input {
+            width: 100%; background-color: #1a1b26; color: var(--text-main);
+            border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em;
+        }
+        .text-input:focus, .num-input:focus { outline: 1px solid var(--accent); }
+        .name-slots { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; padding: 10px; background: #1a1b26; border-radius: 8px;}
+        
+        /* Card UI Styling */
+        .om-card { background-color: #24283b; border: 1px solid #565f89; border-radius: 5px; padding: 8px 5px; min-width: 55px; text-align: center; font-size: 0.85em; color: #a9b1d6; }
+        .om-card.is-maid { color: #f7768e; border-color: #f7768e; font-weight: bold; }
+        
+        .om-card-back {
+            background: repeating-linear-gradient(45deg, #24283b, #24283b 5px, #1a1b26 5px, #1a1b26 10px);
+            border: 1px solid #565f89; border-radius: 5px; width: 45px; height: 65px; cursor: pointer; transition: transform 0.2s;
+        }
+        .om-card-back:hover { transform: translateY(-5px); border-color: var(--accent); }
+        
+        /* The new scoreboard strip */
+        .player-counts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 15px; padding: 10px; background: #1a1b26; border-radius: 8px; border: 1px solid #24283b; }
+        .count-badge { padding: 5px 10px; border-radius: 5px; font-size: 0.85em; background-color: #24283b; color: #a9b1d6; }
+        .count-badge.is-user { border: 1px solid #7aa2f7; }
+        .count-badge.has-won { color: #9ece6a; border: 1px solid #9ece6a; background-color: rgba(158, 206, 106, 0.1); }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- SETUP PANEL -->
+        <div class="panel" id="setup-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="margin-bottom: 20px; color: #7aa2f7;">Old Maid</h2>
+
+            <div class="input-group">
+                <label class="input-label">Number of Players (2 - 10)</label>
+                <input type="number" id="num-named" class="num-input" value="3" min="2" max="10">
+            </div>
+
+            <div id="name-slots-container" class="name-slots"></div>
+            
+            <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; background-color: #7aa2f7; color: #1a1b26;">Deal Cards</button>
+        </div>
+
+        <!-- MAIN GAME PANEL -->
+        <div class="panel" id="game-panel" style="display: none; padding: 20px;">
+            <h2 class="text-center" style="color: #7aa2f7; margin-bottom: 5px;">Old Maid</h2>
+            <div id="status-header" style="font-size: 1.1em; color: var(--accent); text-align: center; font-weight: bold; margin-bottom: 10px;"></div>
+            
+            <!-- NEW: Player Card Counts Tracker -->
+            <div id="player-counts-container" class="player-counts"></div>
+            
+            <!-- Target's Hand (Shown only when User draws) -->
+            <div id="target-hand-area" style="display: none; text-align: center; margin: 15px 0; background: #1a1b26; padding: 15px; border-radius: 8px;">
+                <p style="margin-bottom: 10px; color: #a9b1d6;">Pick a card from <b id="target-name-ui"></b>:</p>
+                <div id="target-cards-container" style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;"></div>
+            </div>
+
+            <!-- Big Action/Progress Button -->
+            <button id="btn-action" class="action-btn" style="padding: 15px; font-size: 1.1em; margin: 15px 0; background-color: #7aa2f7;"></button>
+
+            <!-- Action Log -->
+            <div id="action-log" style="height: 90px; overflow-y: auto; background: #1a1b26; padding: 10px; margin-bottom: 15px; color: #787c99; font-size: 0.9em; border-radius: 5px; line-height: 1.4;"></div>
+
+            <!-- User's Hand -->
+            <div style="background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #24283b;">
+                <h3 style="margin-bottom: 10px; font-size: 1em; color: #a9b1d6;">Your Hand (<span id="user-hand-count">0</span>)</h3>
+                <div id="user-hand-container" style="display: flex; gap: 5px; flex-wrap: wrap;"></div>
+            </div>
+
+            <!-- Mid-Game Push Roleplay Box -->
+            <div style="background: #1a1b26; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #565f89;">
+                <p style="font-size: 0.85em; color: #7aa2f7; margin-bottom: 8px; font-weight: bold;">MID-GAME ROLEPLAY</p>
+                <textarea id="midgame-rp-text" placeholder="Your roleplay response..." style="min-height: 60px; margin-bottom: 10px;"></textarea>
+                <button class="action-btn" id="btn-push-midgame" style="background-color: #565f89; color: white; margin-bottom: 0; font-size: 0.95em;">Push Current State to Chat</button>
+            </div>
+        </div>
+
+        <!-- END GAME PANEL -->
+        <div class="panel" id="end-game-panel" style="display: none;">
+            <h2 class="text-center" style="color: #f7768e; margin-bottom: 10px;">Game Over</h2>
+            <div id="end-stats" class="text-center" style="margin-bottom: 20px; font-size: 1.2em; line-height: 1.4; padding: 15px; background: #1a1b26; border-radius: 8px;"></div>
+            
+            <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Your Roleplay Response:</p>
+            <textarea id="end-rp-text" placeholder='e.g. *I burst out laughing as Alice is left with the Old Maid.*'></textarea>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="action-btn confirm-btn" id="btn-confirm-end" style="margin-bottom: 0;">Push to Chat</button>
+                <button class="action-btn cancel-btn" id="btn-cancel-end" style="margin-bottom: 0;">Return to Setup</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="oldmaid.js"></script>
+</body>
+</html>

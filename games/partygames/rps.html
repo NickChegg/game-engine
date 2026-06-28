@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- MAIN GAME PANEL -->
+        <div class="panel" id="game-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            
+            <h2 class="text-center" style="margin-bottom: 20px;">Rock, Paper, Scissors</h2>
+
+            <div class="score-panel">
+                <div class="score-box">
+                    <div class="score-title">You</div>
+                    <div class="score-value" id="score-player">0</div>
+                </div>
+                <div class="score-box">
+                    <div class="score-title">Ties</div>
+                    <div class="score-value" id="score-ties">0</div>
+                </div>
+                <div class="score-box">
+                    <div class="score-title">AI</div>
+                    <div class="score-value" id="score-ai">0</div>
+                </div>
+            </div>
+
+            <div id="round-result" class="text-center" style="min-height: 45px; margin: 20px 0; font-size: 1.1em; color: var(--accent);">
+                Make your move!
+            </div>
+
+            <div class="game-controls" id="game-controls">
+                <button class="action-btn rps-btn" data-move="rock">✊ Rock</button>
+                <button class="action-btn rps-btn" data-move="paper">✋ Paper</button>
+                <button class="action-btn rps-btn" data-move="scissors">✌️ Scissors</button>
+                
+                <hr style="border: 1px solid #15161e; margin: 20px 0;">
+                
+                <button class="action-btn reset-btn" id="btn-reset-game">🔄 Reset Game</button>
+                <button class="action-btn end-btn" id="btn-end-game">🛑 End Game & Respond</button>
+            </div>
+        </div>
+
+        <!-- END GAME PANEL (Hidden by default) -->
+        <div class="panel" id="end-game-panel" style="display: none;">
+            <h2 class="text-center" style="color: #f7768e; margin-bottom: 10px;">Game Over</h2>
+            <p id="end-stats" class="text-center" style="margin-bottom: 20px; font-size: 1.1em;"></p>
+            
+            <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Your Roleplay Response:</p>
+            <textarea id="end-rp-text" placeholder='e.g. "Yes!" *I yell with a laugh.* "You had me worried there for a minute."'></textarea>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="action-btn confirm-btn" id="btn-confirm-end" style="margin-bottom: 0;">Push to Chat</button>
+                <button class="action-btn cancel-btn" id="btn-cancel-end" style="margin-bottom: 0;">Return</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="rps.js"></script>
+</body>
+</html>

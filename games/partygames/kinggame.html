@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The King Game</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .text-input, .num-input {
+            width: 100%; background-color: #1a1b26; color: var(--text-main);
+            border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em;
+        }
+        .text-input:focus, .num-input:focus { outline: 1px solid var(--accent); }
+        .name-slots { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; padding: 10px; background: #1a1b26; border-radius: 8px;}
+        
+        /* Custom toggle styling */
+        .toggle-group { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding: 10px; background: #1a1b26; border-radius: 8px; }
+        .toggle-label { font-size: 0.9em; color: #a9b1d6; cursor: pointer; flex-grow: 1; }
+        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #bb9af7; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- SETUP PANEL -->
+        <div class="panel" id="setup-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            
+            <h2 class="text-center" style="margin-bottom: 20px; color: #bb9af7;">The King Game</h2>
+
+            <div class="input-group">
+                <label class="input-label">Named Participants</label>
+                <input type="number" id="num-named" class="num-input" value="3" min="2" max="15">
+            </div>
+
+            <!-- Dynamic slots will be injected here by JS -->
+            <div id="name-slots-container" class="name-slots"></div>
+
+            <!-- Hide Results Toggle -->
+            <div class="toggle-group">
+                <label for="hide-results-toggle" class="toggle-label">Hide Results from Chat UI (Send as Secret)</label>
+                <input type="checkbox" id="hide-results-toggle" checked>
+            </div>
+
+            <hr style="border: 1px solid #15161e; margin: 20px 0;">
+            
+            <button class="action-btn confirm-btn" id="btn-draw" style="width: 100%; background-color: #bb9af7; color: #1a1b26;">👑 Draw Sticks</button>
+        </div>
+
+        <!-- END GAME PANEL (Hidden by default) -->
+        <div class="panel" id="end-game-panel" style="display: none;">
+            <h2 class="text-center" style="color: #bb9af7; margin-bottom: 10px;">The Draw is Complete</h2>
+            
+            <div id="end-stats" class="text-center" style="margin-bottom: 20px; font-size: 1.1em; line-height: 1.4; padding: 15px; background: #1a1b26; border-radius: 8px;">
+                <!-- User's specific result will be shown here -->
+            </div>
+            
+            <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Your Roleplay Response:</p>
+            <textarea id="end-rp-text" placeholder='e.g. *I cover the tip of my stick so no one can see my number.*'></textarea>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="action-btn confirm-btn" id="btn-confirm-end" style="margin-bottom: 0;">Push to Chat</button>
+                <button class="action-btn cancel-btn" id="btn-cancel-end" style="margin-bottom: 0;">Redraw</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="kinggame.js"></script>
+</body>
+</html>
