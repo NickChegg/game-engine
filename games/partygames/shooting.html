@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shooting Gallery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app" style="max-width: 600px;">
+        <!-- SETUP PANEL -->
+        <div class="panel" id="setup-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="margin-bottom: 20px; color: white;">🎯 Shooting Gallery</h2>
+
+            <div class="input-group">
+                <label class="input-label" style="color: #787c99;">Difficulty (Speed & Lifetime)</label>
+                <select id="difficulty" class="select-input" style="border-color: white;">
+                    <option value="easy">Easy (Relaxed, targets stay long)</option>
+                    <option value="medium" selected>Medium (Standard pace)</option>
+                    <option value="hard">Hard (Blink and you miss it)</option>
+                </select>
+            </div>
+            
+            <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; background-color: white; color: black; border: 2px solid #565f89;">Start Range (30 Seconds)</button>
+        </div>
+
+        <!-- MAIN GAME PANEL -->
+        <div class="panel" id="game-panel" style="display: none; padding: 20px;">
+            <div class="hud-bar">
+                <div>Time: <span id="time-ui" style="color: #f7768e;">30</span>s</div>
+                <div>Score: <span id="score-ui" style="color: #9ece6a;">0</span></div>
+                <div>Acc: <span id="acc-ui" style="color: #89ddff;">0</span>%</div>
+            </div>
+
+            <!-- The Game Board -->
+            <div id="arena" class="shooting-arena"></div>
+            
+            <p style="text-align: center; color: #787c99; font-size: 0.85em; margin-top: 15px;">Shoot the targets! Closer to the center = more points.</p>
+        </div>
+
+        <!-- END GAME PANEL -->
+        <div class="panel" id="end-game-panel" style="display: none;">
+            <h2 class="text-center" style="color: white; margin-bottom: 10px;">Time's Up!</h2>
+            <div id="end-stats" class="text-center" style="margin-bottom: 20px; font-size: 1.1em; line-height: 1.4; padding: 15px; background: #1a1b26; border-radius: 8px;"></div>
+            
+            <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Your Roleplay Response:</p>
+            <textarea id="end-rp-text" placeholder='e.g. *I lower the gun and blow the smoke from the barrel, smirking.*'></textarea>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="action-btn confirm-btn" id="btn-confirm-end" style="margin-bottom: 0;">Push to Chat</button>
+                <button class="action-btn cancel-btn" id="btn-cancel-end" style="margin-bottom: 0;">Play Again</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="shooting.js"></script>
+</body>
+</html>
