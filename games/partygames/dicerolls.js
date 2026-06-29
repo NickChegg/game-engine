@@ -1,3 +1,12 @@
+// DOM Elements - Left Panel (Players)
+const numRollers = document.getElementById("num-rollers");
+const rollerSlotsContainer = document.getElementById("roller-slots-container");
+const btnLockRollers = document.getElementById("btn-lock-rollers");
+const playerSetupMode = document.getElementById("player-setup-mode");
+const playerSelectMode = document.getElementById("player-select-mode");
+const rollerTogglesContainer = document.getElementById("roller-toggles-container");
+const btnEditRollers = document.getElementById("btn-edit-rollers");
+
 // DOM Elements - Inputs
 const diceCategory = document.getElementById("dice-category");
 const diceCount = document.getElementById("dice-count");
@@ -42,33 +51,90 @@ const specialtyData = {
     },
     "adult": {
         name: "Action & Body Dice",
-        actions: ["Kiss", "Lick", "Bite", "Suck", "Touch", "Massage"],
-        bodyParts: ["Lips", "Neck", "Thigh", "Ear", "Chest", "Stomach"],
+        actions: ["Kiss", "Lick", "Bite", "Suck", "Touch", "Massage", "Grind"],
+        bodyParts: ["Lips", "Neck", "Thigh", "Ear", "Chest", "Stomach", "Ass", "Genitals"],
         preview: "Rolls a pair. Action (Kiss, Bite...) + Body Part (Neck, Lips...)."
     }
 };
 
 // Current State
 let lastResultString = "";
+let currentRoller = "{{user}}"; // Defaults to the macro
 
 // ==========================================
-// 1. UI TOGGLES & PREVIEWS
+// 1. LEFT PANEL: PLAYER SELECTOR
+// ==========================================
+function generateRollerSlots() {
+    let count = parseInt(numRollers.value) || 1;
+    if (count > 15) count = 15;
+    
+    rollerSlotsContainer.innerHTML = "";
+    for (let i = 1; i <= count; i++) {
+        let input = document.createElement("input");
+        input.type = "text";
+        input.className = "text-input roller-name-input";
+        if (i === 1) input.value = "{{user}}";
+        else input.placeholder = `Character ${i} Name`;
+        rollerSlotsContainer.appendChild(input);
+    }
+}
+numRollers.addEventListener("input", generateRollerSlots);
+window.addEventListener("DOMContentLoaded", generateRollerSlots);
+
+btnLockRollers.addEventListener("click", () => {
+    const inputs = document.querySelectorAll(".roller-name-input");
+    rollerTogglesContainer.innerHTML = "";
+    let isFirst = true;
+    
+    inputs.forEach((input, index) => {
+        let name = input.value.trim() || `Character ${index + 1}`;
+        
+        let btn = document.createElement("button");
+        btn.className = "roller-toggle";
+        btn.innerText = name;
+        
+        // Handle toggling visual state
+        btn.onclick = () => {
+            document.querySelectorAll(".roller-toggle").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            currentRoller = name; // Update the global roller state!
+        };
+        
+        // Auto-select the first person on the list
+        if (isFirst) {
+            btn.classList.add("active");
+            currentRoller = name;
+            isFirst = false;
+        }
+        
+        rollerTogglesContainer.appendChild(btn);
+    });
+    
+    playerSetupMode.style.display = "none";
+    playerSelectMode.style.display = "block";
+});
+
+btnEditRollers.addEventListener("click", () => {
+    // Reveal the inputs again to fix typos or add members
+    playerSelectMode.style.display = "none";
+    playerSetupMode.style.display = "block";
+});
+
+// ==========================================
+// 2. UI TOGGLES & PREVIEWS (Main Panel)
 // ==========================================
 function updateUI() {
     const isNumeric = diceCategory.value === "numeric";
     
-    // Toggle main groups
     numericGroup.style.display = isNumeric ? "block" : "none";
     specialtyGroup.style.display = isNumeric ? "none" : "block";
     
-    // Toggle Custom N input
     if (isNumeric && numericType.value === "custom") {
         customGroup.style.display = "block";
     } else {
         customGroup.style.display = "none";
     }
     
-    // Update Preview Text
     if (isNumeric) {
         dicePreview.innerText = "";
     } else {
@@ -76,27 +142,24 @@ function updateUI() {
         dicePreview.innerText = specialtyData[sType].preview;
     }
 }
-
 diceCategory.addEventListener("change", updateUI);
 numericType.addEventListener("change", updateUI);
 specialtyType.addEventListener("change", updateUI);
 window.addEventListener("DOMContentLoaded", updateUI);
 
 // ==========================================
-// 2. ROLLING LOGIC
+// 3. ROLLING LOGIC
 // ==========================================
 function rollDice() {
     let count = parseInt(diceCount.value) || 1;
     if (count < 1) count = 1;
-    if (count > 500) count = 500; // Hard limit for safety
+    if (count > 500) count = 500; 
     
     const isNumeric = diceCategory.value === "numeric";
-    
     let rollArray = [];
     let rollSum = 0;
     
     if (isNumeric) {
-        // NUMERIC ROLLS
         let sides = 6;
         if (numericType.value === "custom") {
             sides = parseInt(customN.value) || 2;
@@ -110,46 +173,40 @@ function rollDice() {
             rollSum += roll;
         }
         
-        // Format Result Display
         let dieName = `d${sides}`;
         resultBox.innerHTML = `
             <div class="dice-sum">${rollSum}</div>
             <div class="dice-list">Rolled ${count}${dieName}:<br>${rollArray.join(", ")}</div>
         `;
         
-        // Format ST String
-        lastResultString = `\`{{user}} rolled ${count}${dieName}: ${rollArray.join(", ")}. (Total: ${rollSum})\``;
+        // Build the string dynamically using currentRoller
+        lastResultString = `\`${currentRoller} rolled ${count}${dieName}: ${rollArray.join(", ")}. (Total: ${rollSum})\``;
         
     } else {
-        // SPECIALTY ROLLS
         const sType = specialtyType.value;
         const data = specialtyData[sType];
         
         for (let i = 0; i < count; i++) {
             if (sType === "adult") {
-                // Adult dice requires two arrays
                 let a = data.actions[Math.floor(Math.random() * data.actions.length)];
                 let b = data.bodyParts[Math.floor(Math.random() * data.bodyParts.length)];
                 rollArray.push(`[${a} + ${b}]`);
             } else {
-                // Standard single array
                 let face = data.faces[Math.floor(Math.random() * data.faces.length)];
                 rollArray.push(face);
             }
         }
         
-        // Format Result Display
         resultBox.innerHTML = `
             <div class="dice-sum" style="color: #a9b1d6; font-size: 1.5em; margin-bottom: 15px;">${data.name}</div>
             <div class="dice-list" style="color: var(--accent); font-weight: bold;">${rollArray.join("<br>")}</div>
         `;
         
-        // Format ST String
         let grammarCount = count === 1 ? "1 die" : `${count} dice`;
-        lastResultString = `\`{{user}} rolled ${grammarCount} (${data.name}): ${rollArray.join(", ")}\``;
+        // Build the string dynamically using currentRoller
+        lastResultString = `\`${currentRoller} rolled ${grammarCount} (${data.name}): ${rollArray.join(", ")}\``;
     }
 
-    // Enable push and reroll buttons
     btnReroll.disabled = false;
     btnPush.disabled = false;
 }
@@ -158,7 +215,7 @@ btnRoll.addEventListener("click", rollDice);
 btnReroll.addEventListener("click", rollDice);
 
 // ==========================================
-// 3. PUSH TO SILLYTAVERN
+// 4. PUSH TO SILLYTAVERN
 // ==========================================
 btnPush.addEventListener("click", () => {
     let output = lastResultString;
@@ -169,7 +226,5 @@ btnPush.addEventListener("click", () => {
     }
 
     STBridge.sendMessage(output);
-    
-    // Clear out roleplay text after push
     rpText.value = "";
 });

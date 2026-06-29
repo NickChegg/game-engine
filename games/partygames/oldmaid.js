@@ -342,7 +342,7 @@ function showEndGame(loser) {
         const rpText = endRpText.value.trim();
         if (rpText) pushStr += `\n${rpText}`;
         
-        STBridge.sendMessage(pushStr);
+        STBridge.sendMessage(pushStr, { losers: [loser.name] });
         
         endRpText.value = "";
         endGamePanel.style.display = "none";

@@ -8,6 +8,12 @@
 </head>
 <body>
     <div id="app" style="max-width: 500px;">
+<!-- Global Settings / Strip Mode Button -->
+        <div style="text-align: right; margin-bottom: 10px;">
+            <a href="strip_setup.html" class="action-btn" style="display: inline-block; width: auto; background-color: #f7768e; padding: 8px 15px; font-size: 0.9em; margin-bottom: 0;">
+                👗 Strip Mode Setup
+            </a>
+        </div>
         <div class="panel">
             <h1 class="text-center" style="margin-bottom: 5px;">Party Games</h1>
             <p id="status-text" class="text-center">Connected to SillyTavern</p>
@@ -28,6 +34,11 @@
                                 <a href="rps.html" class="action-btn">
                                     ✊✋✌️ Rock, Paper, Scissors
                                     <div class="menu-desc">A quick sudden-death match.</div>
+                                </a>
+                                <!-- New Tic Tac Toe Button -->
+                                <a href="tictactoe.html" class="action-btn" style="background-color: #565f89; color: white;">
+                                    ❌⭕ Tic Tac Toe
+                                    <div class="menu-desc" style="color: #a9b1d6;">The classic 3x3 grid.</div>
                                 </a>
                             </div>
                         </div>
@@ -115,32 +126,20 @@
         let currentIndex = 0;
         
         function updateCarousel() {
-            // Slide the track horizontally
             track.style.transform = `translateX(-${currentIndex * 100}%)`;
-            
-            // Disable arrows if at the beginning or end of the list
             prevBtn.disabled = currentIndex === 0;
             nextBtn.disabled = currentIndex === slides.length - 1;
-            
-            // Update the "1 / 5" text at the bottom
             pageIndicator.innerText = `${currentIndex + 1} / ${slides.length}`;
         }
         
         prevBtn.addEventListener('click', () => {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateCarousel();
-            }
+            if (currentIndex > 0) { currentIndex--; updateCarousel(); }
         });
         
         nextBtn.addEventListener('click', () => {
-            if (currentIndex < slides.length - 1) {
-                currentIndex++;
-                updateCarousel();
-            }
+            if (currentIndex < slides.length - 1) { currentIndex++; updateCarousel(); }
         });
         
-        // Initialize the UI on load
         updateCarousel();
     </script>
 </body>

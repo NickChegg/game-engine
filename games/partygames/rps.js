@@ -92,15 +92,22 @@ btnCancelEnd.addEventListener("click", () => {
 btnConfirmEnd.addEventListener("click", () => {
     let total = scores.player + scores.ai + scores.ties;
     if (total === 0) {
-        // Edge case: They clicked end without playing anything
         endGamePanel.style.display = "none";
         gamePanel.style.display = "block";
         return;
     }
     
     let outcome = "It's a tie!";
-    if (scores.player > scores.ai) outcome = "{{user}} won!";
-    if (scores.player < scores.ai) outcome = "{{user}} lost!";
+    let gameResult = null; // Prepare our strip state object
+
+    if (scores.player > scores.ai) {
+        outcome = "{{user}} won!";
+        gameResult = { winners: ["{{user}}"] }; // Tell bridge user won
+    }
+    if (scores.player < scores.ai) {
+        outcome = "{{user}} lost!";
+        gameResult = { losers: ["{{user}}"] }; // Tell bridge user lost
+    }
 
     let resultString = `\`${outcome} ${total} Round${total !== 1 ? 's' : ''}.`;
     if (scores.ties > 0) {
@@ -113,10 +120,9 @@ btnConfirmEnd.addEventListener("click", () => {
         resultString += `\n${userRp}`;
     }
 
-    // Call our newly abstracted shared bridge instead of window.opener!
-    STBridge.sendMessage(resultString);
+    // Call our shared bridge, passing the new gameResult parameter!
+    STBridge.sendMessage(resultString, gameResult);
 
-    // After pushing to chat, automatically navigate back to the Main Menu
     window.location.href = "index.html";
 });
 

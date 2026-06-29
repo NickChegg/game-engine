@@ -6,19 +6,22 @@
     <title>Dice Roller</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* Specific page layout to allow two panels side-by-side */
+        #app { max-width: 850px !important; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: center; width: 100%; }
+        .side-panel { width: 280px; align-self: center; }
+        .main-panel { flex-grow: 1; max-width: 500px; align-self: center; }
+
         .input-group { margin-bottom: 15px; }
         .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
-        .select-input, .num-input {
+        .select-input, .num-input, .text-input {
             width: 100%; background-color: #1a1b26; color: var(--text-main);
             border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em;
         }
-        .select-input:focus, .num-input:focus { outline: 1px solid var(--accent); }
+        .select-input:focus, .num-input:focus, .text-input:focus { outline: 1px solid var(--accent); }
         
-        /* Layout flexboxes */
         .flex-row { display: flex; gap: 10px; }
         .flex-row > * { flex: 1; }
         
-        /* Result Box */
         .result-box {
             background: #1a1b26; border: 1px solid #24283b; border-radius: 8px;
             padding: 20px; text-align: center; margin: 20px 0; min-height: 100px;
@@ -26,17 +29,50 @@
         }
         .dice-sum { font-size: 2.5em; font-weight: bold; color: var(--accent); margin-bottom: 10px; }
         .dice-list { font-size: 1.1em; color: #a9b1d6; line-height: 1.5; }
-        
         .preview-text { font-size: 0.85em; color: #787c99; font-style: italic; margin-top: 5px; }
+
+        /* Roller Toggles UI */
+        .name-slots { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; padding: 10px; background: #1a1b26; border-radius: 8px; max-height: 350px; overflow-y: auto;}
+        .roller-toggle {
+            display: block; width: 100%; padding: 12px; margin-bottom: 8px;
+            background-color: #24283b; color: #a9b1d6; border: 1px solid #565f89; border-radius: 5px;
+            font-size: 1em; font-weight: bold; cursor: pointer; transition: all 0.2s;
+        }
+        .roller-toggle:hover { background-color: #1a1b26; border-color: var(--accent); }
+        .roller-toggle.active { background-color: var(--accent); color: #1a1b26; border-color: var(--accent); transform: scale(1.02); box-shadow: 0 4px 10px rgba(122, 162, 247, 0.2); }
     </style>
 </head>
 <body>
     <div id="app">
-        <div class="panel">
-            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
-            <h2 class="text-center" style="margin-bottom: 20px; color: #a9b1d6;">Dice Roller</h2>
+        
+        <!-- NEW LEFT PANEL: Who is Rolling -->
+        <div class="panel side-panel" id="player-panel">
+            <h3 class="text-center" style="color: #a9b1d6; margin-bottom: 15px;">Active Roller</h3>
+            
+            <!-- Setup Mode -->
+            <div id="player-setup-mode">
+                <div class="input-group">
+                    <label class="input-label">Number of Characters</label>
+                    <input type="number" id="num-rollers" class="num-input" value="1" min="1" max="15">
+                </div>
+                <div id="roller-slots-container" class="name-slots"></div>
+                <button class="action-btn confirm-btn" id="btn-lock-rollers" style="width: 100%; margin-bottom: 0;">Lock In Names</button>
+            </div>
 
-            <!-- Category Selector -->
+            <!-- Select Mode -->
+            <div id="player-select-mode" style="display: none;">
+                <div id="roller-toggles-container" style="display: flex; flex-direction: column; max-height: 400px; overflow-y: auto; padding-right: 5px; margin-bottom: 15px;">
+                    <!-- Toggles injected here -->
+                </div>
+                <button class="action-btn cancel-btn" id="btn-edit-rollers" style="width: 100%; margin-bottom: 0;">Rename / Edit List</button>
+            </div>
+        </div>
+
+        <!-- MAIN PANEL: Dice Board -->
+        <div class="panel main-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="margin-bottom: 20px; color: #a9b1d6;">Dice Board</h2>
+
             <div class="input-group">
                 <label class="input-label">Dice Category</label>
                 <select id="dice-category" class="select-input">
@@ -46,13 +82,11 @@
             </div>
 
             <div class="flex-row">
-                <!-- How Many Dice -->
                 <div class="input-group" style="flex: 0.5;">
                     <label class="input-label">Count</label>
                     <input type="number" id="dice-count" class="num-input" value="1" min="1" max="50">
                 </div>
                 
-                <!-- Numeric Selector (Shows if Numeric Category) -->
                 <div class="input-group" id="numeric-group">
                     <label class="input-label">Dice Type</label>
                     <select id="numeric-type" class="select-input">
@@ -67,7 +101,6 @@
                     </select>
                 </div>
 
-                <!-- Specialty Selector (Shows if Specialty Category) -->
                 <div class="input-group" id="specialty-group" style="display: none;">
                     <label class="input-label">Dice Type</label>
                     <select id="specialty-type" class="select-input">
@@ -93,17 +126,14 @@
                 <button class="action-btn cancel-btn" id="btn-reroll" style="margin-bottom: 0;" disabled>🔄 Reroll</button>
             </div>
 
-            <!-- Results Output -->
             <div class="result-box" id="result-box">
                 <div style="color: #565f89; font-style: italic;">Results will appear here.</div>
             </div>
 
             <hr style="border: 1px solid #15161e; margin: 20px 0;">
 
-            <!-- Push to Chat -->
             <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Roleplay Response (Optional):</p>
             <textarea id="rp-text" placeholder='e.g. *I cast the dice across the table confidently.*' style="min-height: 60px; margin-bottom: 10px;"></textarea>
-            
             <button class="action-btn" id="btn-push" style="background-color: #565f89; color: white; margin-bottom: 0;" disabled>Push Results to Chat</button>
 
         </div>

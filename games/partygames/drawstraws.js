@@ -14,6 +14,7 @@ const endRpText = document.getElementById("end-rp-text");
 
 // Store the final outcome to push to ST later
 let finalResultString = ""; 
+let currentLoserName = ""; // FIX: We declare this globally so the confirm button remembers it!
 
 // ==========================================
 // 1. DYNAMIC LOBBY SETUP
@@ -72,16 +73,18 @@ btnDraw.addEventListener("click", () => {
 
     // 4. Do the Draw
     const loserIndex = Math.floor(Math.random() * total);
-    const loserName = participants[loserIndex];
+    
+    // FIX: Save the name to our global variable
+    currentLoserName = participants[loserIndex];
 
     // 5. Format the UI Display
     endStats.innerHTML = `Total participants: <b>${total}</b><br><br>
                           <span style="color: #f7768e; font-size: 1.2em; font-weight: bold;">
-                          ${loserName} drew the short straw!
+                          ${currentLoserName} drew the short straw!
                           </span>`;
 
     // 6. Format the SillyTavern Chat String
-    finalResultString = `\`The group drew straws. Out of ${total} people, everyone drew a long straw except for ${loserName}, who drew the short straw!\``;
+    finalResultString = `\`The group drew straws. Out of ${total} people, everyone drew a long straw except for ${currentLoserName}, who drew the short straw!\``;
 
     // 7. Swap Panels
     setupPanel.style.display = "none";
@@ -105,8 +108,8 @@ btnConfirmEnd.addEventListener("click", () => {
         finalResultString += `\n${userRp}`;
     }
 
-    // Push to ST chat using our bridge
-    STBridge.sendMessage(finalResultString);
+    // Push to ST chat using our bridge, passing the globally stored loser name
+    STBridge.sendMessage(finalResultString, { losers: [currentLoserName] });
 
     // Reset the UI for the next round instead of going back to the menu
     endRpText.value = ""; // Clear out the RP response box

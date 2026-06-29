@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strip Punishment Setup</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .text-input, .num-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; margin-bottom: 5px; }
+        .text-input:focus { outline: 1px solid var(--accent); }
+        
+        .char-card { background: #1a1b26; border: 1px solid #565f89; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .char-title { color: #f7768e; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #24283b; padding-bottom: 5px; }
+        
+        .clothing-row { display: flex; gap: 5px; margin-bottom: 5px; }
+        .clothing-row input { margin-bottom: 0; }
+        .btn-small { background: #565f89; color: white; border: none; border-radius: 4px; padding: 0 12px; cursor: pointer; font-weight: bold; }
+        .btn-small:hover { background: #f7768e; color: #1a1b26; }
+        .btn-add { background: #24283b; color: #9ece6a; width: 100%; padding: 8px; border: 1px dashed #565f89; border-radius: 4px; cursor: pointer; transition: 0.2s;}
+        .btn-add:hover { background: #1a1b26; border-color: #9ece6a; }
+        
+        #auto-fill-box { background: rgba(247, 118, 142, 0.1); border: 1px solid #f7768e; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div id="app" style="max-width: 600px; max-height: 95vh; overflow-y: auto;">
+        
+        <!-- PHASE 1: Name Input -->
+        <div class="panel" id="phase-1">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="margin-bottom: 20px; color: #f7768e;">Strip Mode: Characters</h2>
+
+            <div class="input-group">
+                <label class="input-label">Number of Characters involved</label>
+                <input type="number" id="num-chars" class="num-input" value="2" min="1" max="10">
+            </div>
+
+            <div id="name-slots" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;"></div>
+            
+            <button class="action-btn confirm-btn" id="btn-next">Next ➡</button>
+            <button class="action-btn cancel-btn" id="btn-disable" style="margin-top: 10px;">Turn Off Strip Mode</button>
+        </div>
+
+        <!-- PHASE 2: Clothing Input -->
+        <div class="panel" id="phase-2" style="display: none;">
+            <h2 class="text-center" style="margin-bottom: 20px; color: #f7768e;">Clothing Lists</h2>
+            
+            <div id="auto-fill-box">
+                <p style="font-size: 0.9em; margin-bottom: 10px; color: #a9b1d6;"><b>Auto-Fill:</b> Ask the LLM to scan the chat and detect what everyone is currently wearing.</p>
+                <button class="action-btn" id="btn-autofill" style="background-color: #f7768e; color: #1a1b26; margin-bottom: 0;">🤖 Auto-Fill from Chat</button>
+                <p id="autofill-status" style="font-size: 0.85em; color: #9ece6a; margin-top: 10px; display: none;">Waiting for AI response...</p>
+            </div>
+
+            <div id="clothing-cards-container"></div>
+            
+            <hr style="border: 1px solid #15161e; margin: 20px 0;">
+            <div style="display: flex; gap: 10px;">
+                <button class="action-btn confirm-btn" id="btn-activate" style="margin-bottom: 0;">Activate & Return to Menu</button>
+                <button class="action-btn cancel-btn" id="btn-back" style="margin-bottom: 0;">Back</button>
+            </div>
+        </div>
+
+    </div>
+    <script src="st_bridge.js"></script>
+    <script src="strip_setup.js"></script>
+</body>
+</html>

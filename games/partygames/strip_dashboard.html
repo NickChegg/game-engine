@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Strip Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { padding: 15px; align-items: flex-start; }
+        .dashboard-header { color: #f7768e; border-bottom: 2px solid #24283b; padding-bottom: 10px; margin-bottom: 20px; }
+        
+        .char-block { background: #1a1b26; border: 1px solid #565f89; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .char-title { color: #a9b1d6; font-weight: bold; margin-bottom: 10px; font-size: 1.1em; display: flex; justify-content: space-between; }
+        .char-count { color: #787c99; font-size: 0.85em; }
+        
+        /* Interactive Clothing Pills */
+        .pill-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .item-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #24283b; border: 1px solid #7aa2f7; color: #a9b1d6;
+            padding: 5px 10px; border-radius: 12px; font-size: 0.9em;
+        }
+        .pill-remove {
+            color: #f7768e; cursor: pointer; font-weight: bold; padding-left: 4px; border-left: 1px solid #565f89;
+        }
+        .pill-remove:hover { color: #ff9eaf; }
+        
+        /* Add Item Mini-Form */
+        .add-row { display: flex; gap: 5px; }
+        .add-input { flex-grow: 1; background: #15161e; border: 1px solid #24283b; color: white; padding: 6px; border-radius: 4px; }
+        .add-btn { background: #565f89; color: white; border: none; border-radius: 4px; padding: 0 10px; cursor: pointer; }
+        .add-btn:hover { background: #7aa2f7; }
+        
+        .global-controls { display: flex; gap: 10px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div id="app" style="width: 100%; max-width: 100%;">
+        <div class="panel">
+            <h2 class="text-center dashboard-header">👗 Live Dashboard</h2>
+            
+            <p id="status-msg" style="color: #9ece6a; text-align: center; font-size: 0.9em; margin-bottom: 15px;">Monitoring game results...</p>
+            
+            <div id="dashboard-container">
+                <!-- Characters injected here -->
+            </div>
+            
+            <div class="global-controls">
+                <button class="action-btn cancel-btn" id="btn-full-reset" style="margin-bottom: 0;" title="Restore to the original clothing lists">🔄 Full Reset</button>
+                <button class="action-btn confirm-btn" id="btn-close" style="margin-bottom: 0; background-color: #f7768e;">🛑 End / Disable</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="strip_dashboard.js"></script>
+</body>
+</html>
