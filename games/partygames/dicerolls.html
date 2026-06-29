@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice Roller</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .select-input, .num-input {
+            width: 100%; background-color: #1a1b26; color: var(--text-main);
+            border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em;
+        }
+        .select-input:focus, .num-input:focus { outline: 1px solid var(--accent); }
+        
+        /* Layout flexboxes */
+        .flex-row { display: flex; gap: 10px; }
+        .flex-row > * { flex: 1; }
+        
+        /* Result Box */
+        .result-box {
+            background: #1a1b26; border: 1px solid #24283b; border-radius: 8px;
+            padding: 20px; text-align: center; margin: 20px 0; min-height: 100px;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .dice-sum { font-size: 2.5em; font-weight: bold; color: var(--accent); margin-bottom: 10px; }
+        .dice-list { font-size: 1.1em; color: #a9b1d6; line-height: 1.5; }
+        
+        .preview-text { font-size: 0.85em; color: #787c99; font-style: italic; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="margin-bottom: 20px; color: #a9b1d6;">Dice Roller</h2>
+
+            <!-- Category Selector -->
+            <div class="input-group">
+                <label class="input-label">Dice Category</label>
+                <select id="dice-category" class="select-input">
+                    <option value="numeric">Standard Numeric Dice</option>
+                    <option value="specialty">Specialty / Alternative Dice</option>
+                </select>
+            </div>
+
+            <div class="flex-row">
+                <!-- How Many Dice -->
+                <div class="input-group" style="flex: 0.5;">
+                    <label class="input-label">Count</label>
+                    <input type="number" id="dice-count" class="num-input" value="1" min="1" max="50">
+                </div>
+                
+                <!-- Numeric Selector (Shows if Numeric Category) -->
+                <div class="input-group" id="numeric-group">
+                    <label class="input-label">Dice Type</label>
+                    <select id="numeric-type" class="select-input">
+                        <option value="4">d4</option>
+                        <option value="6" selected>d6</option>
+                        <option value="8">d8</option>
+                        <option value="10">d10</option>
+                        <option value="12">d12</option>
+                        <option value="20">d20</option>
+                        <option value="100">d100</option>
+                        <option value="custom">Custom (dN)</option>
+                    </select>
+                </div>
+
+                <!-- Specialty Selector (Shows if Specialty Category) -->
+                <div class="input-group" id="specialty-group" style="display: none;">
+                    <label class="input-label">Dice Type</label>
+                    <select id="specialty-type" class="select-input">
+                        <option value="fudge">Fudge / Fate</option>
+                        <option value="scatter">Warhammer Scatter</option>
+                        <option value="poker">Poker Dice</option>
+                        <option value="boggle">Letters (Boggle)</option>
+                        <option value="adult">Action & Body (Adult)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Custom N Input -->
+            <div class="input-group" id="custom-group" style="display: none;">
+                <label class="input-label">Custom Dice Sides (N)</label>
+                <input type="number" id="custom-n" class="num-input" value="36" min="2" max="10000">
+            </div>
+
+            <p id="dice-preview" class="preview-text text-center"></p>
+
+            <div class="flex-row" style="margin-top: 15px;">
+                <button class="action-btn confirm-btn" id="btn-roll" style="margin-bottom: 0;">🎲 Roll Dice</button>
+                <button class="action-btn cancel-btn" id="btn-reroll" style="margin-bottom: 0;" disabled>🔄 Reroll</button>
+            </div>
+
+            <!-- Results Output -->
+            <div class="result-box" id="result-box">
+                <div style="color: #565f89; font-style: italic;">Results will appear here.</div>
+            </div>
+
+            <hr style="border: 1px solid #15161e; margin: 20px 0;">
+
+            <!-- Push to Chat -->
+            <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Roleplay Response (Optional):</p>
+            <textarea id="rp-text" placeholder='e.g. *I cast the dice across the table confidently.*' style="min-height: 60px; margin-bottom: 10px;"></textarea>
+            
+            <button class="action-btn" id="btn-push" style="background-color: #565f89; color: white; margin-bottom: 0;" disabled>Push Results to Chat</button>
+
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="dicerolls.js"></script>
+</body>
+</html>

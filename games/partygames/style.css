@@ -11,11 +11,13 @@
 body {
     background-color: var(--bg-color);
     color: var(--text-main);
-    height: 100vh;
+    min-height: 100vh; 
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow-y: auto; /* Allows window scrolling if needed */
+    overflow-x: hidden;
+    padding: 20px 0;
 }
 
 #app { width: 100%; max-width: 450px; padding: 20px; }
@@ -31,7 +33,19 @@ body {
 #status-text { color: #9ece6a; font-weight: bold; font-size: 0.9em; }
 
 /* Menu Grid */
-.menu-grid { display: grid; gap: 15px; margin-top: 20px; }
+.menu-grid { 
+    display: grid; 
+    gap: 15px; 
+    margin-top: 20px; 
+    max-height: 45vh; /* Prevents the box from growing infinitely */
+    overflow-y: auto; /* Adds a scrollbar to the list */
+    padding-right: 5px; /* Gives the scrollbar some breathing room */
+}
+
+/* Scrollbar */
+.menu-grid::-webkit-scrollbar { width: 6px; }
+.menu-grid::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 4px; }
+.menu-grid::-webkit-scrollbar-thumb { background: #565f89; border-radius: 4px; }
 .menu-desc { font-size: 0.8em; color: #787c99; margin-top: 5px; font-weight: normal; }
 
 /* Game Specific */
