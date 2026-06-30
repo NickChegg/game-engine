@@ -52,7 +52,7 @@
             <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; background-color: #f7768e; color: #1a1b26;">Lock In & Start</button>
         </div>
 
-        <!-- ACTIVE GAME PANEL (Hidden by default) -->
+        <!-- ACTIVE GAME PANEL -->
         <div class="panel" id="game-panel" style="display: none;">
             <h2 class="text-center" style="color: #f7768e; margin-bottom: 5px;">Truth or Dare</h2>
             <div id="active-mode-badge" class="mode-badge">Mode</div>
@@ -60,9 +60,15 @@
             <ul class="player-list" id="player-list-ui">
                 <!-- Players will be rendered here -->
             </ul>
+
+            <!-- NEW: Roleplay Text Box -->
+            <div style="background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #565f89; margin-bottom: 15px;">
+                <p style="font-size: 0.85em; color: #f7768e; margin-bottom: 8px; font-weight: bold;">ROLEPLAY RESPONSE (OPTIONAL)</p>
+                <textarea id="turn-rp-text" placeholder='e.g. *I grin mischievously.* "Alright, whose turn is it?"' style="min-height: 60px; margin-bottom: 0; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; resize: vertical;"></textarea>
+            </div>
             
             <button class="action-btn confirm-btn" id="btn-next-turn" style="background-color: #f7768e; color: #1a1b26; margin-bottom: 10px;">
-                Push Turn to Chat ➡
+                Push Turn & Message to Chat ➡
             </button>
             <button class="action-btn cancel-btn" id="btn-end-game" style="margin-bottom: 0;">End Game / Edit Order</button>
         </div>

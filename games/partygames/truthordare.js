@@ -11,6 +11,7 @@ const activeModeBadge = document.getElementById("active-mode-badge");
 const playerListUI = document.getElementById("player-list-ui");
 const btnNextTurn = document.getElementById("btn-next-turn");
 const btnEndGame = document.getElementById("btn-end-game");
+const turnRpText = document.getElementById("turn-rp-text"); // NEW DOM ELEMENT
 
 // Game State
 let participants = [];
@@ -110,8 +111,17 @@ function pushTurnToSillyTavern() {
         tagString = `<It is now ${activePlayer}'s turn to receive a truth or dare request from the other players.>`;
     }
 
-    // Push the invisible tag immediately
+    // APPEND THE USER'S ROLEPLAY TEXT IF IT EXISTS
+    const userRp = turnRpText.value.trim();
+    if (userRp) {
+        tagString += `\n${userRp}`;
+    }
+
+    // Push to the chat
     STBridge.sendMessage(tagString);
+    
+    // Clear out the box for the next turn
+    turnRpText.value = "";
 }
 
 btnNextTurn.addEventListener("click", () => {
@@ -124,7 +134,7 @@ btnNextTurn.addEventListener("click", () => {
     // Update the UI
     renderPlayerList();
 
-    // Push the new turn to the LLM
+    // Push the new turn to the LLM (and grab any text the user typed)
     pushTurnToSillyTavern();
 });
 
