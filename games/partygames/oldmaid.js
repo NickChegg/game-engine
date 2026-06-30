@@ -37,16 +37,24 @@ let pendingPairRank = null;
 // 1. SETUP LOBBY
 // ==========================================
 function generateNameSlots() {
-    const count = parseInt(numNamedInput.value) || 0;
-    nameSlotsContainer.innerHTML = ""; 
+    const targetCount = parseInt(numNamedInput.value) || 0;
+    const currentCount = nameSlotsContainer.children.length;
 
-    for (let i = 1; i <= count; i++) {
-        const input = document.createElement("input");
-        input.type = "text";
-        input.className = "text-input player-name-input";
-        if (i === 1) input.value = "{{user}}"; 
-        else input.placeholder = `Player ${i} Name`;
-        nameSlotsContainer.appendChild(input);
+    if (currentCount < targetCount) {
+        for (let i = currentCount + 1; i <= targetCount; i++) {
+            const input = document.createElement("input");
+            input.type = "text";
+            input.className = "text-input player-name-input";
+            
+            if (i === 1) input.value = "{{user}}";
+            else input.placeholder = `Character ${i} Name`;
+            
+            nameSlotsContainer.appendChild(input);
+        }
+    } else if (currentCount > targetCount) {
+        for (let i = currentCount; i > targetCount; i--) {
+            nameSlotsContainer.removeChild(nameSlotsContainer.lastChild);
+        }
     }
 }
 

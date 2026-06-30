@@ -217,3 +217,55 @@ textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
     color: #a9b1d6;
     border: 1px solid #24283b;
 }
+
+/* =========================================
+   SNAKES & LADDERS STYLES
+   ========================================= */
+.sl-board-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 554px; /* Matches JPG size */
+    aspect-ratio: 1 / 1;
+    background-image: url('assets/snakes_board.jpg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: 2px solid #565f89;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.sl-ghost-grid {
+    position: absolute;
+    /* 16px trim out of 554px = 2.88% margin all around */
+    top: 2.88%; left: 2.88%;
+    width: 94.24%; height: 94.24%;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+}
+
+.sl-cell {
+    position: relative; 
+    /* border: 1px solid rgba(255, 255, 255, 0.1); Un-comment to see grid lines for debugging */
+}
+
+.sl-token {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.8);
+    transition: all 0.3s ease-in-out;
+}
+
+/* Player List Items */
+.sl-player-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px; border-bottom: 1px solid #24283b; transition: 0.2s;
+}
+.sl-player-row.active { background: rgba(158, 206, 106, 0.1); border-left: 4px solid #9ece6a; }
+.sl-player-row.finished { opacity: 0.5; background: #15161e; }
+.sl-rank-badge { font-weight: bold; padding: 3px 8px; border-radius: 4px; background: #24283b; }

@@ -20,15 +20,22 @@ let isWaitingForLLM = false;
 // 1. PHASE 1: CHARACTER SETUP
 // ==========================================
 function renderNameSlots() {
-    let count = parseInt(numCharsInput.value) || 2;
-    nameSlots.innerHTML = "";
-    for (let i = 1; i <= count; i++) {
-        let input = document.createElement("input");
-        input.type = "text";
-        input.className = "text-input char-name-input";
-        if (i === 1) input.value = "{{user}}";
-        else input.placeholder = `Character ${i}`;
-        nameSlots.appendChild(input);
+    let targetCount = parseInt(numCharsInput.value) || 2;
+    let currentCount = nameSlots.children.length;
+    
+    if (currentCount < targetCount) {
+        for (let i = currentCount + 1; i <= targetCount; i++) {
+            let input = document.createElement("input");
+            input.type = "text";
+            input.className = "text-input char-name-input";
+            if (i === 1) input.value = "{{user}}";
+            else input.placeholder = `Character ${i}`;
+            nameSlots.appendChild(input);
+        }
+    } else if (currentCount > targetCount) {
+        for (let i = currentCount; i > targetCount; i--) {
+            nameSlots.removeChild(nameSlots.lastChild);
+        }
     }
 }
 numCharsInput.addEventListener("input", renderNameSlots);
