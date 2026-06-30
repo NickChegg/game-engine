@@ -65,17 +65,23 @@ let currentRoller = "{{user}}"; // Defaults to the macro
 // 1. LEFT PANEL: PLAYER SELECTOR
 // ==========================================
 function generateRollerSlots() {
-    let count = parseInt(numRollers.value) || 1;
-    if (count > 15) count = 15;
+    let targetCount = parseInt(numRollers.value) || 1;
+    if (targetCount > 15) targetCount = 15;
+    let currentCount = rollerSlotsContainer.children.length;
     
-    rollerSlotsContainer.innerHTML = "";
-    for (let i = 1; i <= count; i++) {
-        let input = document.createElement("input");
-        input.type = "text";
-        input.className = "text-input roller-name-input";
-        if (i === 1) input.value = "{{user}}";
-        else input.placeholder = `Character ${i} Name`;
-        rollerSlotsContainer.appendChild(input);
+    if (currentCount < targetCount) {
+        for (let i = currentCount + 1; i <= targetCount; i++) {
+            let input = document.createElement("input");
+            input.type = "text";
+            input.className = "text-input roller-name-input";
+            if (i === 1) input.value = "{{user}}";
+            else input.placeholder = `Character ${i} Name`;
+            rollerSlotsContainer.appendChild(input);
+        }
+    } else if (currentCount > targetCount) {
+        for (let i = currentCount; i > targetCount; i--) {
+            rollerSlotsContainer.removeChild(rollerSlotsContainer.lastChild);
+        }
     }
 }
 numRollers.addEventListener("input", generateRollerSlots);
