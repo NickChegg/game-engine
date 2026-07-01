@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gun Arena</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #app { max-width: 1000px !important; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: flex-start; width: 100%; }
+        .side-panel { width: 320px; align-self: flex-start; }
+        .main-panel { flex-grow: 1; max-width: 600px; align-self: flex-start; display: flex; justify-content: center; }
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .select-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; box-sizing: border-box; }
+        
+        .hud-bar { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1em; background: #1a1b26; padding: 10px; border-radius: 8px; border: 1px solid #24283b; margin-bottom: 10px; width: 100%; box-sizing: border-box;}
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- LEFT PANEL -->
+        <div class="panel side-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="color: #f7768e; margin-bottom: 20px;">🔫 Gun Arena</h2>
+
+            <div id="setup-phase">
+                <div class="input-group">
+                    <label class="input-label">Game Mode</label>
+                    <select id="game-mode" class="select-input">
+                        <option value="waves">3 Waves (3 Lives)</option>
+                        <option value="endless">Endless Survival (1 Life)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Enemy Difficulty (Speed & Fire Rate)</label>
+                    <select id="game-diff" class="select-input">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                
+                <p style="font-size: 0.85em; color: #787c99; margin-bottom: 15px;"><b>Controls:</b> WASD/Arrows to Move. Mouse to Aim. Click to Shoot. SPACE or R to Reload.</p>
+
+                <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; background: #f7768e; color: #1a1b26;">Enter Arena</button>
+            </div>
+
+            <!-- In-Game Controls -->
+            <div id="game-controls-phase" style="display: none;">
+                <div style="background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #565f89; margin-bottom: 15px;">
+                    <p style="font-size: 0.9em; color: #a9b1d6; font-weight: bold; text-align: center; margin-bottom: 5px;">Ammo: <span id="ammo-ui" style="color: #89ddff;">13 / 13</span></p>
+                    <p style="font-size: 0.8em; color: #787c99; text-align: center;" id="reload-ui">Press R or SPACE to reload.</p>
+                </div>
+
+                <button class="action-btn cancel-btn" id="btn-restart" style="width: 100%; margin-bottom: 0;">🛑 Abort Match</button>
+            </div>
+
+            <!-- End Phase -->
+            <div id="end-phase" style="display: none; margin-top: 20px;">
+                <h3 class="text-center" style="color: white; margin-bottom: 15px;">Match Over</h3>
+                <div id="end-stats" class="text-center" style="margin-bottom: 15px; font-size: 1.1em; font-weight: bold; padding: 15px; background: #1a1b26; border-radius: 8px;"></div>
+                
+                <textarea id="end-rp-text" placeholder="Final roleplay response..." style="min-height: 60px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; box-sizing: border-box; resize: vertical;"></textarea>
+                
+                <button class="action-btn confirm-btn" id="btn-push-end" style="width: 100%; margin-bottom: 10px; background: #f7768e; color: #1a1b26;">Push Results to Chat</button>
+                <button class="action-btn cancel-btn" id="btn-menu" style="width: 100%; margin-bottom: 0;">Back to Setup</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Canvas -->
+        <div class="panel main-panel" style="flex-direction: column;">
+            <div class="hud-bar" id="game-hud" style="display: none;">
+                <span id="hud-wave" style="color: #bb9af7;">Wave: 1</span>
+                <span id="hud-kills" style="color: #9ece6a;">Kills: 0</span>
+                <span id="hud-lives" style="color: #f7768e;">Lives: 3</span>
+            </div>
+            
+            <div class="arena-wrapper">
+                <canvas id="gun-canvas" width="550" height="500"></canvas>
+            </div>
+        </div>
+        
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="gunarena.js"></script>
+</body>
+</html>

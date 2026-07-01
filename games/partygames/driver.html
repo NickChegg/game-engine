@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Driver</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #app { max-width: 900px !important; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: flex-start; width: 100%; }
+        .side-panel { width: 320px; align-self: flex-start; }
+        .main-panel { flex-grow: 1; max-width: 500px; align-self: flex-start; display: flex; justify-content: center; }
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .select-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; box-sizing: border-box; }
+        .select-input:focus { outline: 1px solid var(--accent); }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- LEFT PANEL -->
+        <div class="panel side-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="color: #e0af68; margin-bottom: 20px;">🏍️ Neon Driver</h2>
+
+            <div id="setup-phase">
+                <div class="input-group">
+                    <label class="input-label">Game Mode</label>
+                    <select id="game-mode" class="select-input">
+                        <option value="timed">Timed (30s, 3 Lives)</option>
+                        <option value="endless">Endless (1 Hit Death, Score Run)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Traffic Density (Difficulty)</label>
+                    <select id="game-diff" class="select-input">
+                        <option value="easy">Easy (Light Traffic)</option>
+                        <option value="medium" selected>Medium (Standard Rush Hour)</option>
+                        <option value="hard">Hard (Gridlock Reflexes)</option>
+                    </select>
+                </div>
+                
+                <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; background: #e0af68; color: #1a1b26;">Ignition</button>
+            </div>
+
+            <!-- In-Game HUD -->
+            <div id="game-controls-phase" style="display: none;">
+                <div style="background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #565f89; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 1.2em; font-weight: bold; margin-bottom: 10px;">
+                        <span id="hud-primary" style="color: #e0af68;">Time: 30s</span>
+                        <span id="hud-secondary" style="color: #f7768e;">Lives: 3</span>
+                    </div>
+                    <p style="font-size: 0.8em; color: #787c99; text-align: center;">Use Left/Right Arrows, A/D, or the buttons below the screen to steer.</p>
+                </div>
+
+                <button class="action-btn cancel-btn" id="btn-restart" style="width: 100%; margin-bottom: 0;">🛑 Abort Run</button>
+            </div>
+
+            <!-- End Phase -->
+            <div id="end-phase" style="display: none; margin-top: 20px;">
+                <h3 class="text-center" style="color: white; margin-bottom: 15px;">Run Complete</h3>
+                <div id="end-stats" class="text-center" style="margin-bottom: 15px; font-size: 1.1em; font-weight: bold; padding: 15px; background: #1a1b26; border-radius: 8px;"></div>
+                
+                <textarea id="end-rp-text" placeholder="Final roleplay response..." style="min-height: 60px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; box-sizing: border-box; resize: vertical;"></textarea>
+                
+                <button class="action-btn confirm-btn" id="btn-push-end" style="width: 100%; margin-bottom: 10px; background: #e0af68; color: #1a1b26;">Push Results to Chat</button>
+                <button class="action-btn cancel-btn" id="btn-menu" style="width: 100%; margin-bottom: 0;">Back to Setup</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Canvas -->
+        <div class="panel main-panel">
+            <div class="driver-arena">
+                <canvas id="driver-canvas" width="360" height="500"></canvas>
+                <div class="driver-controls">
+                    <button class="driver-btn" id="btn-left">◄</button>
+                    <button class="driver-btn" id="btn-right">►</button>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="driver.js"></script>
+</body>
+</html>
