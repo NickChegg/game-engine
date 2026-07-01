@@ -522,3 +522,38 @@ textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
     background-color: #e0af68;
     box-shadow: inset -3px -3px 8px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.5);
 }
+
+/* =========================================
+   BATTLESHIPS STYLES
+   ========================================= */
+.bs-boards-wrapper { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+.bs-board-container { display: flex; flex-direction: column; align-items: center; }
+.bs-board-title { color: #a9b1d6; font-size: 0.9em; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+
+.bs-board { 
+    position: relative; width: 240px; height: 240px; 
+    display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); 
+    border: 2px solid #565f89; background-color: #15161e; box-sizing: content-box;
+}
+
+.bs-cell { 
+    border: 1px solid #24283b; box-sizing: border-box; 
+    display: flex; justify-content: center; align-items: center; 
+    cursor: crosshair; position: relative; z-index: 2; 
+}
+.bs-cell:hover { background-color: rgba(255, 255, 255, 0.1); }
+
+.bs-ship { 
+    position: absolute; background-color: #787c99; border-radius: 15px; 
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); pointer-events: none; 
+    transition: opacity 0.3s; z-index: 1; border: 1px solid #565f89;
+}
+.bs-ship.hidden { opacity: 0; }
+.bs-ship.sunk { opacity: 1; background-color: #565f89; border: 2px solid #f7768e; }
+.bs-ship.ghost { opacity: 0.5; background-color: #9ece6a; z-index: 5; } /* Hover placement */
+.bs-ship.ghost.invalid { background-color: #f7768e; }
+
+.bs-marker { width: 14px; height: 14px; border-radius: 50%; z-index: 3; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.bs-hit { background-color: #f7768e; border: 2px solid #1a1b26; }
+.bs-miss { background-color: #a9b1d6; border: 2px solid #1a1b26; 
+}
