@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin the Wheel</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #app { max-width: 1000px !important; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: flex-start; width: 100%; }
+        .side-panel { width: 350px; align-self: flex-start; }
+        .main-panel { flex-grow: 1; max-width: 500px; align-self: flex-start; }
+
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .text-input, .select-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; }
+        
+        .flex-row { display: flex; gap: 10px; align-items: center; }
+        .list-container { background: #1a1b26; padding: 10px; border-radius: 8px; max-height: 200px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #24283b; }
+        .btn-small { background: #565f89; color: white; border: none; border-radius: 4px; padding: 5px 12px; cursor: pointer; font-weight: bold; }
+        .btn-small:hover { background: #f7768e; color: #1a1b26; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- LEFT PANEL: Configuration -->
+        <div class="panel side-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="color: #ffb3ba; margin-bottom: 15px;">Wheel Config</h2>
+
+            <!-- Load Presets -->
+            <div class="input-group">
+                <label class="input-label">Saved Wheels</label>
+                <div class="flex-row">
+                    <select id="preset-dropdown" class="select-input" style="margin-bottom: 0;"></select>
+                    <button class="btn-small" id="btn-load-preset" style="height: 42px; background: #9ece6a; color: #1a1b26;">Load</button>
+                    <button class="btn-small" id="btn-del-preset" style="height: 42px; background: #f7768e; color: #1a1b26;">Del</button>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="input-group">
+                <label class="input-label">After Spinning</label>
+                <select id="wheel-mode" class="select-input">
+                    <option value="keep">Keep Selected (Remains on wheel)</option>
+                    <option value="remove">Remove Selected (Slice disappears)</option>
+                </select>
+            </div>
+
+            <hr style="border-color: #24283b; margin: 15px 0;">
+
+            <!-- Segments -->
+            <div class="input-group">
+                <label class="input-label" style="display: flex; justify-content: space-between;">
+                    Wheel Segments
+                    <span id="btn-edit-colors" style="color: #7aa2f7; cursor: pointer; text-transform: none;">🎨 Edit Colors</span>
+                </label>
+                <div id="segments-container" class="list-container"></div>
+                <button class="action-btn" id="btn-add-segment" style="background: #24283b; color: #a9b1d6; border: 1px dashed #565f89; padding: 8px;">+ Add Segment</button>
+            </div>
+
+            <hr style="border-color: #24283b; margin: 15px 0;">
+
+            <!-- Optional Names -->
+            <div class="input-group">
+                <label class="input-label">Spinners (Optional Order)</label>
+                <div id="names-container" class="list-container"></div>
+                <div class="flex-row" style="margin-bottom: 10px;">
+                    <button class="btn-small" id="btn-add-name" style="flex: 1; background: #24283b; border: 1px solid #565f89;">+ Add Name</button>
+                    <button class="btn-small" id="btn-randomize-names" style="flex: 1;">🔀 Randomize</button>
+                </div>
+                
+                <textarea id="rp-text-order" placeholder="Roleplay response for turn order..." style="min-height: 50px; margin-bottom: 10px; background: #24283b; color: white; border: 1px solid #15161e; width: 100%; padding: 10px; border-radius: 5px; resize: vertical; font-family: inherit; font-size: 0.9em; box-sizing: border-box;"></textarea>
+                <button class="action-btn" id="btn-push-order" style="background: #565f89; color: white; padding: 10px; font-size: 0.9em; margin-bottom: 20px;">Push Turn Order to Chat</button>
+            </div>
+
+            <!-- Save Current -->
+            <div class="input-group">
+                <label class="input-label">Save Current Wheel</label>
+                <div class="flex-row">
+                    <input type="text" id="save-name-input" class="text-input" placeholder="Wheel Name" style="margin-bottom: 0;">
+                    <button class="btn-small" id="btn-save-preset" style="height: 42px; background: #7aa2f7; color: #1a1b26;">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: The Wheel -->
+        <div class="panel main-panel">
+            <h2 class="text-center" style="color: white; margin-bottom: 15px;">The Wheel</h2>
+            
+            <div class="text-center" style="color: #7aa2f7; font-weight: bold; margin-bottom: 10px; min-height: 20px;" id="current-spinner-ui"></div>
+
+            <div class="wheel-wrapper">
+                <div class="wheel-pointer"></div>
+                <!-- Canvas will be spun via CSS Transform -->
+                <canvas id="wheel-canvas" width="380" height="380"></canvas>
+            </div>
+
+            <button class="action-btn confirm-btn" id="btn-spin" style="background-color: #ffb3ba; color: #1a1b26; font-size: 1.3em;">🎡 SPIN!</button>
+
+            <!-- Results Output -->
+            <div id="result-box" style="display: none; background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #ffb3ba; margin-top: 15px; text-align: center;">
+                <div style="font-size: 0.9em; color: #787c99; margin-bottom: 5px;">Result:</div>
+                <div id="result-text" style="font-size: 1.5em; font-weight: bold; color: #ffb3ba; margin-bottom: 15px;"></div>
+                
+                <p style="text-align: left; margin-bottom: 5px; font-size: 0.85em; color: #787c99;">Roleplay Response (Optional):</p>
+                <textarea id="rp-text" placeholder="Your roleplay response..." style="min-height: 60px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px;"></textarea>
+                <button class="action-btn" id="btn-push-result" style="background-color: #565f89; color: white; margin-bottom: 0;">Push to Chat</button>
+            </div>
+        </div>
+
+        <!-- COLORS MODAL -->
+        <div class="modal-overlay" id="color-modal" style="display: none;">
+            <div class="modal-content">
+                <h3 style="color: white; margin-bottom: 15px;">Wheel Colors</h3>
+                <div id="colors-list-container" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px;"></div>
+                <button class="btn-small" id="btn-add-color" style="width: 100%; margin-bottom: 15px; background: #24283b; border: 1px dashed #565f89;">+ Add Color</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-small" id="btn-save-colors" style="flex: 1; background: #9ece6a; color: #1a1b26;">Save & Apply</button>
+                    <button class="btn-small" id="btn-close-colors" style="flex: 1;">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="spinwheel.js"></script>
+</body>
+</html>

@@ -269,3 +269,115 @@ textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
 .sl-player-row.active { background: rgba(158, 206, 106, 0.1); border-left: 4px solid #9ece6a; }
 .sl-player-row.finished { opacity: 0.5; background: #15161e; }
 .sl-rank-badge { font-weight: bold; padding: 3px 8px; border-radius: 4px; background: #24283b; }
+
+/* =========================================
+   MAGIC 8-BALL STYLES
+   ========================================= */
+.eightball-container {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle at 30% 30%, #444, #000 70%);
+    border-radius: 50%;
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset -10px -10px 20px rgba(0,0,0,0.8);
+    position: relative;
+}
+
+.eightball-window {
+    width: 120px;
+    height: 120px;
+    background-color: #050505;
+    border-radius: 50%;
+    border: 4px solid #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 5px 15px rgba(0,0,0,0.9);
+}
+
+.eightball-triangle {
+    width: 100px;
+    height: 100px;
+    background-color: #1a237e; /* Deep blue */
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 15px;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.eightball-text {
+    color: white;
+    font-size: 0.75em;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    width: 70px;
+    line-height: 1.2;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+/* Shake Animation */
+@keyframes shakeBall {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    20% { transform: translate(-5px, 5px) rotate(-5deg); }
+    40% { transform: translate(5px, -5px) rotate(5deg); }
+    60% { transform: translate(-5px, -5px) rotate(-5deg); }
+    80% { transform: translate(5px, 5px) rotate(5deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+.shaking {
+    animation: shakeBall 0.5s ease-in-out;
+}
+
+/* =========================================
+   SPIN THE WHEEL STYLES
+   ========================================= */
+.wheel-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 20px auto;
+    display: flex;
+    justify-content: center;
+}
+
+#wheel-canvas {
+    border-radius: 50%;
+    border: 4px solid #24283b;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    background-color: #1a1b26;
+}
+
+/* The little triangle pointer at the top */
+.wheel-pointer {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 30px solid #f7768e; /* Red pointer */
+    z-index: 10;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+}
+
+/* Color Editor Modal */
+.modal-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 100;
+}
+.modal-content {
+    background: #1a1b26; border: 1px solid #565f89; border-radius: 8px; padding: 20px; width: 90%; max-width: 400px;
+}
+.color-swatch-row { display: flex; gap: 10px; margin-bottom: 5px; align-items: center; 
+}

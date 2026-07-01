@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic 8-Ball</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app" style="max-width: 500px;">
+        <div class="panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="margin-bottom: 5px; color: #e0af68;">Magic 8-Ball</h2>
+            <p class="text-center" style="color: #787c99; font-size: 0.9em; margin-bottom: 20px;">Ask a question aloud, then shake.</p>
+
+            <!-- Visual 8-Ball -->
+            <div class="eightball-container" id="eightball">
+                <div class="eightball-window">
+                    <div class="eightball-triangle" id="triangle">
+                        <div class="eightball-text" id="answer-text"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="action-btn confirm-btn" id="btn-shake" style="background-color: #1a1b26; color: #e0af68; border: 2px solid #e0af68; font-size: 1.3em; padding: 15px; margin: 20px 0;">
+                🎱 Shake
+            </button>
+
+            <hr style="border: 1px solid #15161e; margin: 20px 0;">
+
+            <!-- Push to Chat -->
+            <div style="background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #565f89;">
+                <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Roleplay Response (Optional):</p>
+                <textarea id="rp-text" placeholder='e.g. *I stare down at the murky window of the 8-ball.* "Are you kidding me?"' style="min-height: 60px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; resize: vertical;"></textarea>
+                
+                <button class="action-btn" id="btn-push" style="background-color: #565f89; color: white; margin-bottom: 0;" disabled>Push Result to Chat</button>
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="magic8ball.js"></script>
+</body>
+</html>
