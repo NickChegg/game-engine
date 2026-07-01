@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarot Reading</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #app { max-width: 950px !important; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: flex-start; width: 100%; }
+        .side-panel { width: 320px; align-self: flex-start; }
+        .main-panel { flex-grow: 1; max-width: 580px; align-self: flex-start; }
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .text-input, .select-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        
+        <!-- LEFT PANEL: Setup -->
+        <div class="panel side-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="color: #bb9af7; margin-bottom: 20px;">🔮 Tarot Setup</h2>
+
+            <div id="setup-phase">
+                <div class="input-group">
+                    <label class="input-label">Subject of the Reading</label>
+                    <input type="text" id="target-name" class="text-input" value="{{user}}" placeholder="Who is this reading for?">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Spread Type</label>
+                    <select id="spread-type" class="select-input">
+                        <option value="1">1 Card (The Core Issue)</option>
+                        <option value="3" selected>3 Cards (Past, Present, Future)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Drawing Method</label>
+                    <select id="draw-method" class="select-input">
+                        <option value="manual">Manual (Click cards to reveal them)</option>
+                        <option value="auto">Auto (Instantly deal and reveal all)</option>
+                    </select>
+                </div>
+                
+                <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; background-color: #bb9af7; color: #1a1b26;">Shuffle & Lay Cards</button>
+            </div>
+
+            <!-- In-Game Controls -->
+            <div id="game-controls-phase" style="display: none;">
+                <p style="color: #787c99; font-size: 0.9em; margin-bottom: 15px; text-align: center;" id="game-status-text"></p>
+                
+                <!-- Individual Push Button (Dynamic) -->
+                <button class="action-btn" id="btn-push-single" style="background: #e0af68; color: #1a1b26; margin-bottom: 10px; display: none;">Push Newly Revealed Card</button>
+                
+                <hr style="border: 1px solid #24283b; margin: 15px 0;">
+
+                <div class="input-group">
+                    <label class="input-label">Roleplay Response (Optional)</label>
+                    <textarea id="rp-text" placeholder="e.g. *I stare down at the Death card, swallowing hard.*" style="min-height: 80px; margin-bottom: 10px; background: #24283b; color: white; border: 1px solid #15161e; width: 100%; padding: 10px; border-radius: 5px; resize: vertical; box-sizing: border-box;"></textarea>
+                </div>
+
+                <!-- Final Push Button -->
+                <button class="action-btn confirm-btn" id="btn-push-all" style="width: 100%; margin-bottom: 10px;" disabled>Push Full Reading to Chat</button>
+                <button class="action-btn cancel-btn" id="btn-reset" style="width: 100%; margin-bottom: 0;">End Reading</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Reading Table -->
+        <div class="panel main-panel">
+            <h2 class="text-center" style="color: white; margin-bottom: 15px;">The Reading</h2>
+            
+            <div id="reading-table" class="tarot-spread-container">
+                <!-- Cards injected here via JS -->
+            </div>
+            
+            <div id="welcome-text" style="color: #565f89; text-align: center; margin-top: 50px; font-style: italic;">
+                Set up your reading on the left to begin...
+            </div>
+        </div>
+        
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="tarot.js"></script>
+</body>
+</html>
