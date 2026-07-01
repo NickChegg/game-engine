@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roulette & Mystery Draw</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #app { max-width: 950px !important; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: flex-start; width: 100%; }
+        .side-panel { width: 320px; align-self: flex-start; }
+        .main-panel { flex-grow: 1; max-width: 580px; align-self: flex-start; }
+
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .text-input, .num-input, .select-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; box-sizing: border-box; }
+        
+        .flex-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .btn-small { background: #565f89; color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; font-weight: bold; }
+        .btn-small:hover { background: #f7768e; color: #1a1b26; }
+        
+        .list-container { background: #1a1b26; padding: 10px; border-radius: 8px; max-height: 250px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #24283b; }
+        
+        /* Result Screen */
+        .result-safe { color: #9ece6a; }
+        .result-danger { color: #f7768e; }
+        .result-custom { color: #bb9af7; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        
+        <!-- LEFT PANEL: Players -->
+        <div class="panel side-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="color: #f7768e; margin-bottom: 15px;">Participants</h2>
+
+            <div id="setup-players-section">
+                <div class="input-group">
+                    <label class="input-label">Number of Players</label>
+                    <input type="number" id="num-players" class="num-input" value="2" min="1" max="15">
+                </div>
+                
+                <div id="player-list-container" class="list-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                
+                <div class="flex-row">
+                    <button class="btn-small" id="btn-randomize-names" style="flex: 1;">🔀 Randomize Order</button>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Push Turn Order (Optional)</label>
+                    <textarea id="rp-text-order" placeholder="Roleplay response..." style="min-height: 50px; margin-bottom: 5px; background: #24283b; color: white; border: 1px solid #15161e; width: 100%; padding: 10px; border-radius: 5px; resize: vertical; box-sizing: border-box;"></textarea>
+                    <button class="btn-small" id="btn-push-order" style="width: 100%;">Push Order to Chat</button>
+                </div>
+            </div>
+
+            <div id="active-players-section" style="display: none;">
+                <div class="input-group">
+                    <label class="input-label" style="color: #9ece6a;">Next to Act</label>
+                    <select id="active-player-dropdown" class="select-input" style="border-color: #9ece6a; font-weight: bold;"></select>
+                </div>
+                <p style="font-size: 0.8em; color: #787c99;">You can manually change the active player here if they are taking a punishment from another game.</p>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Game Setup & Board -->
+        <div class="panel main-panel">
+            <h2 class="text-center" style="color: white; margin-bottom: 15px;">Roulette Configuration</h2>
+            
+            <div id="setup-game-section">
+                <div class="input-group">
+                    <label class="input-label">Game Mode</label>
+                    <select id="game-mode" class="select-input">
+                        <option value="standard">Standard (Safe / Danger)</option>
+                        <option value="custom">Custom Outcomes (e.g., Mystery Flavors)</option>
+                    </select>
+                </div>
+
+                <!-- Standard Mode Inputs -->
+                <div id="standard-inputs">
+                    <div class="flex-row">
+                        <div class="input-group" style="flex: 1;">
+                            <label class="input-label">Total Spaces</label>
+                            <input type="number" id="std-total" class="num-input" value="6" min="1" max="100">
+                        </div>
+                        <div class="input-group" style="flex: 1;">
+                            <label class="input-label" style="color: #f7768e;">Danger Rounds</label>
+                            <input type="number" id="std-danger" class="num-input" value="1" min="1" max="100">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Mode Inputs -->
+                <div id="custom-inputs" style="display: none;">
+                    <div class="input-group">
+                        <label class="input-label">Custom Outcomes & Quantities</label>
+                        <div id="custom-list-container" class="list-container"></div>
+                        <button class="btn-small" id="btn-add-custom" style="width: 100%; background: #24283b; border: 1px dashed #565f89;">+ Add Outcome</button>
+                    </div>
+                </div>
+                
+                <hr style="border: 1px solid #24283b; margin: 20px 0;">
+                <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; font-size: 1.2em;">Lock In & Start</button>
+            </div>
+
+            <!-- Active Game Section -->
+            <div id="active-game-section" style="display: none;">
+                <div style="background: #1a1b26; padding: 20px; border-radius: 8px; border: 1px solid #565f89; text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 1.2em; color: #a9b1d6; margin-bottom: 10px;">Spaces Remaining: <span id="spaces-left-ui" style="font-weight: bold; color: white;">6</span></div>
+                    
+                    <button class="action-btn" id="btn-take-chance" style="background: #f7768e; color: #1a1b26; font-size: 1.5em; padding: 20px; margin-bottom: 0;">Take the Chance!</button>
+                </div>
+
+                <!-- Result Box -->
+                <div id="result-box" style="display: none; background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #bb9af7; margin-bottom: 15px;">
+                    <h3 class="text-center" id="result-text" style="margin-bottom: 15px; font-size: 1.4em;"></h3>
+                    
+                    <p style="margin-bottom: 5px; font-size: 0.85em; color: #787c99;">Roleplay Response:</p>
+                    <textarea id="rp-text-action" placeholder="Your roleplay response..." style="min-height: 60px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; resize: vertical; box-sizing: border-box;"></textarea>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button class="action-btn confirm-btn" id="btn-push-action" style="margin-bottom: 0; flex: 2;">Push to Chat</button>
+                        <button class="action-btn cancel-btn" id="btn-reset-game" style="margin-bottom: 0; flex: 1;">Reset Game</button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="roulette.js"></script>
+</body>
+</html>
