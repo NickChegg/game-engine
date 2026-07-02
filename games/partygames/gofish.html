@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Fish</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #app { max-width: 950px !important; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; gap: 20px; align-items: flex-start; width: 100%; }
+        .side-panel { width: 320px; flex-shrink: 0; align-self: flex-start; }
+        .main-panel { flex-grow: 1; max-width: 580px; min-width: 0; align-self: flex-start; }
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .text-input, .num-input, .select-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; box-sizing: border-box;}
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- LEFT PANEL: Setup -->
+        <div class="panel side-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="color: #89ddff; margin-bottom: 20px;">🐟 Go Fish</h2>
+
+            <div id="setup-phase">
+                <div class="input-group">
+                    <label class="input-label">Number of Players (2 - 5)</label>
+                    <input type="number" id="num-players" class="num-input" value="3" min="2" max="5">
+                </div>
+
+                <div id="player-list-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;"></div>
+                
+                <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; background: #89ddff; color: #1a1b26;">Deal Cards</button>
+            </div>
+
+            <div id="info-phase" style="display: none;">
+                <p style="color: #a9b1d6; font-size: 0.9em; text-align: center; margin-bottom: 15px;">The game is afoot! Reach 0 cards to win.</p>
+                <button class="action-btn cancel-btn" id="btn-restart" style="width: 100%; margin-bottom: 0;">🛑 Abort Game</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Game Board -->
+        <div class="panel main-panel" id="game-panel" style="display: none;">
+            
+            <div class="gf-board">
+                <!-- Opponents -->
+                <div class="gf-opponents" id="opponents-ui"></div>
+
+                <!-- Pond -->
+                <div class="gf-pond-area">
+                    <div id="pond-deck-ui" class="gf-pond-deck"></div>
+                    <div style="color: #a9b1d6; font-weight: bold;">The Pond (<span id="pond-count">0</span>)</div>
+                </div>
+
+                <!-- User Hand -->
+                <div class="gf-user-area" id="user-ui">
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; color: #89ddff;">
+                        <span>Your Hand</span>
+                        <span>Books: <span id="user-books">0</span></span>
+                    </div>
+                    <div class="gf-hand-container" id="user-hand"></div>
+                </div>
+
+                <!-- 3-Phase Action Console -->
+                <div class="gf-action-box">
+                    
+                    <!-- Phase 1: Making a Request -->
+                    <div id="phase-request" style="display: none;">
+                        <div class="gf-phase-title" id="request-title">Your Turn: Make a Request</div>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <select id="req-target" class="select-input" style="flex: 1;"></select>
+                            <select id="req-rank" class="select-input" style="flex: 1;"></select>
+                        </div>
+                        <button class="action-btn confirm-btn" id="btn-make-request" style="width: 100%; margin-bottom: 0;">Ask for Cards</button>
+                    </div>
+
+                    <!-- Phase 2: Fish Phase (Hidden Knowledge Push) -->
+                    <div id="phase-fish" style="display: none;">
+                        <div class="gf-phase-title" id="fish-title">Fish Phase: Awaiting Response</div>
+                        <p style="color: #a9b1d6; font-size: 0.9em; margin-bottom: 10px;" id="fish-desc"></p>
+                        
+                        <textarea id="fish-rp-text" placeholder="Your roleplay response..." style="min-height: 50px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; resize: vertical; box-sizing: border-box;"></textarea>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button class="action-btn" id="btn-push-fish" style="background: #e0af68; color: #1a1b26; flex: 2; margin-bottom: 0;">Push Hidden Hands to Chat</button>
+                            <button class="action-btn confirm-btn" id="btn-resolve-fish" style="flex: 1; margin-bottom: 0;">Resolve</button>
+                        </div>
+                    </div>
+
+                    <!-- Phase 3: Book Phase (Board State Push) -->
+                    <div id="phase-book" style="display: none;">
+                        <div class="gf-phase-title">Book Phase: Results</div>
+                        <p style="color: #9ece6a; font-size: 0.9em; margin-bottom: 10px; font-weight: bold;" id="book-desc"></p>
+                        
+                        <textarea id="book-rp-text" placeholder="Reaction..." style="min-height: 50px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; resize: vertical; box-sizing: border-box;"></textarea>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button class="action-btn" id="btn-push-book" style="background: #89ddff; color: #1a1b26; flex: 2; margin-bottom: 0;">Push Board State to Chat</button>
+                            <button class="action-btn confirm-btn" id="btn-next-turn" style="flex: 1; margin-bottom: 0;">Next Turn</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- END GAME PANEL -->
+        <div class="panel" id="end-phase" style="display: none; width: 100%; max-width: 600px; margin: 0 auto;">
+            <h3 class="text-center" style="color: #e0af68; margin-bottom: 15px;">Game Over</h3>
+            <div id="end-stats" class="text-center" style="margin-bottom: 15px; font-size: 1.2em; font-weight: bold; padding: 15px; background: #1a1b26; border-radius: 8px;"></div>
+            
+            <textarea id="end-rp-text" placeholder="Final roleplay response..." style="min-height: 60px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; box-sizing: border-box; resize: vertical;"></textarea>
+            
+            <button class="action-btn confirm-btn" id="btn-push-end" style="width: 100%; margin-bottom: 10px; background: #89ddff; color: #1a1b26;">Push Results</button>
+            <button class="action-btn cancel-btn" id="btn-back-menu" style="width: 100%; margin-bottom: 0;">Back to Setup</button>
+        </div>
+        
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="gofish.js"></script>
+</body>
+</html>

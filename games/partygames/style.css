@@ -631,3 +631,53 @@ textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
     cursor: crosshair;
     box-shadow: 0 0 20px rgba(247, 118, 142, 0.1);
 }
+
+/* =========================================
+   GO FISH STYLES
+   ========================================= */
+.gf-board { display: flex; flex-direction: column; gap: 15px; }
+
+.gf-opponents { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #24283b; }
+.gf-opp-card { background: #15161e; border: 1px solid #565f89; border-radius: 8px; padding: 10px; min-width: 120px; text-align: center; }
+.gf-opp-name { color: #89ddff; font-weight: bold; margin-bottom: 5px; }
+.gf-opp-stats { font-size: 0.85em; color: #a9b1d6; }
+.gf-opp-card.active-turn { border-color: #9ece6a; box-shadow: 0 0 10px rgba(158, 206, 106, 0.2); }
+
+.gf-pond-area { display: flex; align-items: center; justify-content: center; gap: 20px; background: #1a1b26; padding: 20px; border-radius: 8px; border: 1px dashed #565f89; }
+.gf-pond-deck { width: 50px; height: 70px; border-radius: 5px; background: repeating-linear-gradient(45deg, #24283b, #24283b 5px, #1a1b26 5px, #1a1b26 10px); border: 2px solid #565f89; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
+.gf-pond-empty { width: 50px; height: 70px; border-radius: 5px; border: 2px dashed #24283b; display: flex; justify-content: center; align-items: center; color: #565f89; font-size: 0.8em; }
+
+.gf-user-area { background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #7aa2f7; }
+.gf-hand-container { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+
+/* The Action Console */
+.gf-action-box { background: #15161e; padding: 15px; border-radius: 8px; border: 1px solid #e0af68; margin-top: 15px; }
+.gf-phase-title { color: #e0af68; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; 
+}
+
+/* =========================================
+   GLOBAL PLAYING CARD STYLES
+   ========================================= */
+.playing-card {
+    display: inline-flex; 
+    justify-content: center; 
+    align-items: center;
+    background-color: #e0e6ed; 
+    color: black; 
+    border: 1px solid #1a1b26;
+    border-radius: 5px; 
+    width: 40px; 
+    height: 55px; 
+    font-weight: bold; 
+    font-size: 1.1em;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3); 
+    margin-right: 5px;
+    user-select: none;
+}
+.card-red { color: #d32f2f; }
+.card-black { color: #111; }
+.card-hidden { 
+    background: repeating-linear-gradient(45deg, #24283b, #24283b 5px, #1a1b26 5px, #1a1b26 10px); 
+    color: transparent; 
+    border-color: #565f89; 
+}
