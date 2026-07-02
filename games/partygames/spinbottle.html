@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin the Bottle</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #app { max-width: 950px !important; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; gap: 20px; align-items: flex-start; width: 100%; }
+        .side-panel { width: 320px; flex-shrink: 0; align-self: flex-start; }
+        .main-panel { flex-grow: 1; max-width: 580px; min-width: 0; align-self: flex-start; }
+
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .text-input, .num-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; box-sizing: border-box; }
+        
+        .list-container { background: #1a1b26; padding: 10px; border-radius: 8px; max-height: 200px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #24283b; display: flex; flex-direction: column; gap: 5px;}
+        .flex-row { display: flex; gap: 5px; align-items: center; }
+        .btn-small { background: #565f89; color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; font-weight: bold; }
+        .btn-small:hover { background: #f7768e; color: #1a1b26; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- LEFT PANEL: Setup -->
+        <div class="panel side-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="color: #9ece6a; margin-bottom: 20px;">🍾 Spin the Bottle</h2>
+
+            <div id="setup-phase">
+                <!-- Players -->
+                <div class="input-group">
+                    <label class="input-label">Number of Players</label>
+                    <input type="number" id="num-players" class="num-input" value="3" min="2" max="15">
+                </div>
+                <div id="player-list-container" class="list-container"></div>
+                
+                <!-- Outcomes -->
+                <div class="input-group">
+                    <label class="input-label">Possible Outcomes</label>
+                    <div id="outcomes-list-container" class="list-container"></div>
+                    <button class="btn-small" id="btn-add-outcome" style="width: 100%; background: #24283b; border: 1px dashed #565f89;">+ Add Custom Outcome</button>
+                </div>
+                
+                <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; background: #9ece6a; color: #1a1b26;">Form the Circle</button>
+            </div>
+
+            <!-- In-Game Controls -->
+            <div id="game-controls-phase" style="display: none;">
+                <div style="background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #565f89; margin-bottom: 15px;">
+                    <p style="font-size: 0.9em; color: #a9b1d6; margin-bottom: 10px; text-align: center; font-weight: bold;" id="turn-indicator"></p>
+                    
+                    <p style="font-size: 0.8em; color: #7aa2f7; margin-bottom: 8px; font-weight: bold;">PUSH TURN STATE</p>
+                    <textarea id="rp-text-turn" placeholder="Roleplay response..." style="min-height: 50px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; resize: vertical; box-sizing: border-box;"></textarea>
+                    <button class="action-btn" id="btn-push-turn" style="background-color: #565f89; color: white; margin-bottom: 0; font-size: 0.9em;">Push Whose Turn It Is</button>
+                </div>
+
+                <button class="action-btn cancel-btn" id="btn-reconfig" style="width: 100%; margin-bottom: 0;">Back to Setup</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: The Game -->
+        <div class="panel main-panel">
+            <h2 class="text-center" style="color: white; margin-bottom: 5px;">The Circle</h2>
+            
+            <div class="sb-arena" id="arena">
+                <!-- SVG Bottle -->
+                <div class="sb-bottle-wrapper" id="bottle">
+                    <svg viewBox="0 0 60 180" width="40" height="120">
+                        <!-- Bottle Body -->
+                        <path d="M 20 0 L 40 0 L 40 50 L 55 80 L 55 170 C 55 180 5 180 5 170 L 5 80 L 20 50 Z" fill="#9ece6a" stroke="#1a1b26" stroke-width="4"/>
+                        <!-- Bottle Label -->
+                        <rect x="15" y="100" width="30" height="40" fill="#f7768e" />
+                    </svg>
+                </div>
+                <!-- Names injected here via JS -->
+            </div>
+
+            <button class="action-btn confirm-btn" id="btn-spin" style="background-color: #9ece6a; color: #1a1b26; font-size: 1.5em; padding: 20px; display: none;">🍾 SPIN!</button>
+
+            <!-- Result Box -->
+            <div id="result-box" style="display: none; background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #f7768e; margin-top: 15px; text-align: center;">
+                <div style="font-size: 0.9em; color: #787c99; margin-bottom: 5px;">The Bottle Picked:</div>
+                <div id="result-text" style="font-size: 1.3em; font-weight: bold; color: #f7768e; margin-bottom: 15px;"></div>
+                
+                <p style="text-align: left; margin-bottom: 5px; font-size: 0.85em; color: #787c99;">Roleplay Response:</p>
+                <textarea id="rp-text-result" placeholder="React to the spin..." style="min-height: 60px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; resize: vertical; box-sizing: border-box;"></textarea>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button class="action-btn confirm-btn" id="btn-push-result" style="margin-bottom: 0; flex: 2; background: #f7768e; color: #1a1b26;">Push & Next Turn</button>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="spinbottle.js"></script>
+</body>
+</html>

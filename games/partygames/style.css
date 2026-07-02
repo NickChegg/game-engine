@@ -681,3 +681,47 @@ textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
     color: transparent; 
     border-color: #565f89; 
 }
+
+/* =========================================
+   SPIN THE BOTTLE STYLES
+   ========================================= */
+.sb-arena {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    margin: 20px auto;
+    border-radius: 50%;
+    border: 2px dashed #565f89;
+    background: radial-gradient(circle, #1a1b26, #050505);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+}
+
+.sb-name-tag {
+    position: absolute;
+    font-weight: bold;
+    color: #a9b1d6;
+    text-align: center;
+    width: 80px;
+    margin-left: -40px; /* Center horizontally */
+    margin-top: -10px;  /* Center vertically */
+    text-shadow: 0 2px 4px #000;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.sb-name-tag.active-target {
+    color: #f7768e;
+    transform: scale(1.2);
+}
+
+.sb-bottle-wrapper {
+    position: absolute;
+    width: 40px;
+    height: 120px;
+    transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    transform-origin: center center;
+    z-index: 10;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.6));
+}
