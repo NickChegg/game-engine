@@ -725,3 +725,33 @@ textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
     z-index: 10;
     filter: drop-shadow(0 5px 10px rgba(0,0,0,0.6));
 }
+
+/* =========================================
+   TWISTER STYLES
+   ========================================= */
+.twister-arena {
+    display: flex;
+    justify-content: center;
+    background: #e0e6ed; /* White plastic mat */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.2), 0 10px 20px rgba(0,0,0,0.5);
+    border: 3px solid #a9b1d6;
+    margin-bottom: 15px;
+}
+
+#twister-canvas {
+    background-color: #e0e6ed;
+    border: 1px solid #a9b1d6;
+}
+
+.tw-hud {
+    background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #f7768e;
+    margin-bottom: 15px; text-align: center;
+}
+.tw-alert {
+    color: #f7768e; font-weight: bold; font-size: 1.1em; margin-bottom: 10px;
+    animation: flashAlert 1s infinite alternate;
+}
+@keyframes flashAlert { from { opacity: 1; } to { opacity: 0.5; } 
+}

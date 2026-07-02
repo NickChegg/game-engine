@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twister</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #app { max-width: 1050px !important; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; gap: 20px; align-items: flex-start; width: 100%; }
+        .side-panel { width: 340px; flex-shrink: 0; align-self: flex-start; }
+        .main-panel { flex-grow: 1; max-width: 650px; min-width: 0; align-self: flex-start; }
+
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .text-input, .num-input, .select-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; box-sizing: border-box;}
+        .flex-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        
+        .p-setup-card { background: #15161e; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #24283b; border-left: 4px solid var(--accent); }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- LEFT PANEL: Setup & HUD -->
+        <div class="panel side-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="margin-bottom: 20px;">
+                <span style="color:#f7768e;">T</span><span style="color:#7aa2f7;">w</span><span style="color:#e0af68;">i</span><span style="color:#9ece6a;">s</span><span style="color:#f7768e;">t</span><span style="color:#7aa2f7;">e</span><span style="color:#e0af68;">r</span>
+            </h2>
+
+            <!-- Setup Phase -->
+            <div id="setup-phase">
+                <div class="input-group">
+                    <label class="input-label">Referee / Spinner</label>
+                    <input type="text" id="referee-name" class="text-input" value="The Referee" placeholder="Name of spinner">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Number of Players (2-3)</label>
+                    <input type="number" id="num-players" class="num-input" value="2" min="2" max="3">
+                </div>
+
+                <div id="players-container"></div>
+                
+                <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; background: white; color: #1a1b26;">Step onto the Mat</button>
+            </div>
+
+            <!-- In-Game Controls & Incidents -->
+            <div id="game-controls-phase" style="display: none;">
+                <div class="tw-hud">
+                    <h3 id="turn-indicator" style="color: white; margin-bottom: 15px;">Awaiting Spin...</h3>
+                    
+                    <button class="action-btn" id="btn-spin" style="background: #e0af68; color: #1a1b26; margin-bottom: 15px;">🎡 Spin Wheel</button>
+                    
+                    <!-- Event Box (Pauses for Bumps/Mistakes/Disputes) -->
+                    <div id="event-box" style="display: none; background: #24283b; padding: 15px; border-radius: 8px; border: 1px solid #f7768e; margin-bottom: 15px; text-align: left;">
+                        <div class="tw-alert" id="event-title">INCIDENT!</div>
+                        <p id="event-desc" style="font-size: 0.9em; color: #a9b1d6; margin-bottom: 10px;"></p>
+                        
+                        <textarea id="event-rp-text" placeholder="Roleplay response..." style="min-height: 60px; margin-bottom: 10px; background: #1a1b26; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; resize: vertical; box-sizing: border-box;"></textarea>
+                        
+                        <button class="action-btn confirm-btn" id="btn-resolve-event" style="margin-bottom: 0;">Push & Continue</button>
+                    </div>
+
+                    <!-- Standard Turn Push -->
+                    <div id="turn-push-box" style="display: none;">
+                        <textarea id="turn-rp-text" placeholder="React to the new positions..." style="min-height: 50px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; resize: vertical; box-sizing: border-box;"></textarea>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button class="action-btn" id="btn-push-turn" style="background: #7aa2f7; color: #1a1b26; margin-bottom: 0; flex: 2;">Push to Chat</button>
+                            <button class="action-btn cancel-btn" id="btn-skip-turn" style="margin-bottom: 0; flex: 1;">Next Turn (No Push)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="player-stats-ui" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;"></div>
+
+                <button class="action-btn cancel-btn" id="btn-restart" style="width: 100%; margin-bottom: 0;">🛑 Forfeit / Restart</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Canvas Mat -->
+        <div class="panel main-panel">
+            <h2 class="text-center" style="color: white; margin-bottom: 15px;">The Mat</h2>
+            <div class="twister-arena">
+                <canvas id="twister-canvas" width="400" height="600"></canvas>
+            </div>
+            <p style="text-align: center; color: #787c99; font-size: 0.85em;">Click an available colored dot to place your limb.</p>
+        </div>
+        
+        <!-- END PHASE -->
+        <div class="panel" id="end-phase" style="display: none; width: 100%; margin-top: 20px;">
+            <h3 class="text-center" style="color: #f7768e; margin-bottom: 15px;">Someone Fell!</h3>
+            <div id="end-stats" class="text-center" style="margin-bottom: 15px; font-size: 1.2em; font-weight: bold; padding: 15px; background: #1a1b26; border-radius: 8px;"></div>
+            <textarea id="end-rp-text" placeholder="Final roleplay response..." style="min-height: 60px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; box-sizing: border-box; resize: vertical;"></textarea>
+            <button class="action-btn confirm-btn" id="btn-push-end" style="width: 100%; margin-bottom: 10px; background: #f7768e; color: #1a1b26;">Push Results & Strip</button>
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="twister.js"></script>
+</body>
+</html>
