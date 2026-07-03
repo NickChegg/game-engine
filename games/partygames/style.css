@@ -755,3 +755,51 @@ textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
 }
 @keyframes flashAlert { from { opacity: 1; } to { opacity: 0.5; } 
 }
+
+/* =========================================
+   WAR STYLES
+   ========================================= */
+.war-arena {
+    position: relative;
+    width: 100%;
+    height: 450px;
+    background: radial-gradient(circle, #24283b, #15161e);
+    border-radius: 12px;
+    border: 2px solid #565f89;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.war-player-mat {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100px;
+}
+
+/* Positions for 2-4 Players */
+.war-pos-0 { bottom: 10px; left: 50%; transform: translateX(-50%); } /* User (Bottom) */
+.war-pos-1 { top: 10px; left: 50%; transform: translateX(-50%); }    /* P2 (Top) */
+.war-pos-2 { top: 50%; left: 10px; transform: translateY(-50%); }    /* P3 (Left) */
+.war-pos-3 { top: 50%; right: 10px; transform: translateY(-50%); }   /* P4 (Right) */
+
+.war-name { color: #a9b1d6; font-weight: bold; font-size: 0.9em; margin-bottom: 5px; text-shadow: 1px 1px 2px #000; text-align: center; }
+.war-count { color: #9ece6a; font-size: 0.85em; margin-top: 5px; font-weight: bold; background: #1a1b26; padding: 2px 8px; border-radius: 10px; border: 1px solid #24283b;}
+.war-count.eliminated { color: #f7768e; border-color: #f7768e; background: rgba(247, 118, 142, 0.1); }
+
+.war-pool {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 250px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+    background: rgba(26, 27, 38, 0.6);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px dashed #565f89;
+}
