@@ -44,28 +44,51 @@ function updateSetupUI() {
     dealerNameGroup.style.display = (mode === "character") ? "block" : "none";
     
     let count = parseInt(numPlayersInput.value) || 1;
-    playersContainer.innerHTML = "";
+    let currentCount = playersContainer.children.length;
+    let userAssigned = (mode === "user");
     
-    let userAssigned = (mode === "user"); // If user is dealer, player 1 is an NPC.
-    
-    for (let i = 1; i <= count; i++) {
-        let row = document.createElement("div");
-        row.className = "flex-row";
-        row.style.marginBottom = "10px";
+    // Add new rows without touching existing ones
+    if (currentCount < count) {
+        for (let i = currentCount + 1; i <= count; i++) {
+            let row = document.createElement("div");
+            row.className = "flex-row";
+            row.style.marginBottom = "10px";
+            
+            let isUserSlot = (!userAssigned && i === 1);
+            let nameInp = `<input type="text" class="text-input p-name" ${isUserSlot ? 'value="{{user}}"' : `placeholder="Player ${i}"`}>`;
+            let intInp = `<select class="select-input p-intel" ${isUserSlot ? 'style="display:none;"' : ''}>
+                            <option value="0.5">Simple (50%)</option>
+                            <option value="0.7" selected>Average (70%)</option>
+                            <option value="0.9">Intelligent (90%)</option>
+                          </select>`;
+                          
+            row.innerHTML = `<div style="flex:2;">${nameInp}</div><div style="flex:1;">${intInp}</div>`;
+            playersContainer.appendChild(row);
+        }
+    } 
+    // Remove excess rows from the bottom
+    else if (currentCount > count) {
+        for (let i = currentCount; i > count; i--) {
+            playersContainer.removeChild(playersContainer.lastChild);
+        }
+    }
+
+    // Dynamically update Player 1's UI if Dealer Mode is toggled
+    if (playersContainer.children.length > 0) {
+        let firstRow = playersContainer.children[0];
+        let nameInput = firstRow.querySelector(".p-name");
+        let intelSelect = firstRow.querySelector(".p-intel");
         
-        let isUserSlot = (!userAssigned && i === 1);
-        
-        let nameInp = `<input type="text" class="text-input p-name" ${isUserSlot ? 'value="{{user}}"' : `placeholder="Player ${i}"`}>`;
-        
-        // Intelligence Dropdown (Hidden for user)
-        let intInp = `<select class="select-input p-intel" ${isUserSlot ? 'style="display:none;"' : ''}>
-                        <option value="0.5">Simple (50%)</option>
-                        <option value="0.7" selected>Average (70%)</option>
-                        <option value="0.9">Intelligent (90%)</option>
-                      </select>`;
-                      
-        row.innerHTML = `<div style="flex:2;">${nameInp}</div><div style="flex:1;">${intInp}</div>`;
-        playersContainer.appendChild(row);
+        if (userAssigned) {
+            // User is the dealer, meaning Player 1 is an NPC
+            if (nameInput.value === "{{user}}") nameInput.value = "";
+            nameInput.placeholder = "Player 1";
+            intelSelect.style.display = "inline-block";
+        } else {
+            // User is Player 1
+            if (nameInput.value === "") nameInput.value = "{{user}}";
+            intelSelect.style.display = "none";
+        }
     }
 }
 
