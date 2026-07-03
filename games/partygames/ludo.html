@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ludo</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #app { max-width: 1000px !important; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; gap: 20px; align-items: flex-start; width: 100%; }
+        .side-panel { width: 340px; flex-shrink: 0; align-self: flex-start; }
+        .main-panel { flex-grow: 1; max-width: 600px; min-width: 0; align-self: flex-start; }
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .text-input, .num-input, .select-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; box-sizing: border-box;}
+        .flex-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .p-setup-card { background: #15161e; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #24283b; border-left: 4px solid var(--accent); }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- LEFT PANEL -->
+        <div class="panel side-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="color: #f7768e; margin-bottom: 20px;">🎲 Ludo</h2>
+
+            <div id="setup-phase">
+                <div class="input-group">
+                    <label class="input-label">Win Condition</label>
+                    <select id="win-condition" class="select-input">
+                        <option value="winner">One Winner (Game ends on 1st completion)</option>
+                        <option value="loser" selected>One Loser (Last place is punished)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Number of Players (2-4)</label>
+                    <input type="number" id="num-players" class="num-input" value="2" min="2" max="4">
+                </div>
+
+                <div class="input-group" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #1a1b26; border-radius: 8px;">
+                    <label style="font-size: 0.9em; color: #a9b1d6; cursor: pointer; flex-grow: 1;">Randomize Turn Order</label>
+                    <input type="checkbox" id="randomize-order" checked style="width: 18px; height: 18px;">
+                </div>
+
+                <div id="players-container"></div>
+                
+                <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; background: #f7768e; color: #1a1b26;">To the Board</button>
+            </div>
+
+            <!-- In-Game HUD -->
+            <div id="game-controls-phase" style="display: none;">
+                <div id="player-list-ui" style="margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px;"></div>
+
+                <div class="ludo-dice-box">
+                    <h3 id="turn-indicator" style="color: white; margin-bottom: 10px; text-align: center;">Waiting...</h3>
+                    <div class="ludo-dice" id="dice-visual">?</div>
+                    <button class="action-btn" id="btn-roll" style="background: #9ece6a; color: #1a1b26; width: 100%; font-size: 1.2em; margin-bottom: 0;">Roll Dice</button>
+                </div>
+
+                <div style="background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #565f89; margin-bottom: 15px;">
+                    <p style="font-size: 0.8em; color: #7aa2f7; margin-bottom: 8px; font-weight: bold;">MID-GAME ROLEPLAY</p>
+                    <textarea id="midgame-rp-text" placeholder="Your roleplay response..." style="min-height: 50px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; resize: vertical; box-sizing: border-box;"></textarea>
+                    <button class="action-btn" id="btn-push-midgame" style="background-color: #565f89; color: white; margin-bottom: 0; font-size: 0.9em;">Push State to Chat</button>
+                </div>
+
+                <button class="action-btn cancel-btn" id="btn-restart" style="width: 100%; margin-bottom: 0;">🛑 Forfeit Match</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="panel main-panel">
+            <h2 class="text-center" style="color: white; margin-bottom: 15px;">The Board</h2>
+            
+            <div class="ludo-arena" id="arena">
+                <!-- Tokens injected here -->
+            </div>
+            
+            <p id="action-log" style="text-align: center; color: #a9b1d6; font-size: 0.9em; margin-top: 15px; min-height: 40px;"></p>
+        </div>
+        
+        <!-- END PHASE -->
+        <div class="panel" id="end-phase" style="display: none; width: 100%; max-width: 600px; margin-top: 20px;">
+            <h3 class="text-center" style="color: #f7768e; margin-bottom: 15px;">Game Over</h3>
+            <div id="end-stats" class="text-center" style="margin-bottom: 15px; font-size: 1.2em; font-weight: bold; padding: 15px; background: #1a1b26; border-radius: 8px;"></div>
+            <textarea id="end-rp-text" placeholder="Final roleplay response..." style="min-height: 60px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; box-sizing: border-box; resize: vertical;"></textarea>
+            <button class="action-btn confirm-btn" id="btn-push-end" style="width: 100%; margin-bottom: 10px; background: #f7768e; color: #1a1b26;">Push Results</button>
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="ludo.js"></script>
+</body>
+</html>
