@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Pong</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .select-input, .text-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; }
+        .select-input:focus, .text-input:focus { outline: 1px solid var(--accent); }
+        
+        .pong-arena {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #000;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #565f89;
+            box-shadow: inset 0 0 30px rgba(86, 95, 137, 0.2);
+        }
+
+        #pong-canvas {
+            background-color: #050505;
+            border-top: 3px solid #7aa2f7;
+            border-bottom: 3px solid #f7768e;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            cursor: crosshair;
+        }
+
+        .hud-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1a1b26;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #24283b;
+            font-weight: bold;
+            color: #a9b1d6;
+        }
+
+        .score-highlight { font-size: 1.5em; color: white; }
+        .charge-instruction { font-size: 0.8em; color: #e0af68; margin-top: 10px; text-align: center; }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div id="app" style="max-width: 650px;">
+        
+        <!-- SETUP PANEL -->
+        <div class="panel" id="setup-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="margin-bottom: 20px;">Power Pong</h2>
+
+            <div class="input-group">
+                <label class="input-label">Opponent (AI) Name</label>
+                <input type="text" id="ai-name" class="text-input" placeholder="e.g. Alice" value="AI">
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">AI Skill Rating (1-10)</label>
+                <select id="ai-skill" class="select-input">
+                    <option value="1">1 - Clueless</option>
+                    <option value="3">3 - Beginner</option>
+                    <option value="5" selected>5 - Average</option>
+                    <option value="7">7 - Pro</option>
+                    <option value="10">10 - Unbeatable</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Game Rules</label>
+                <select id="game-rules" class="select-input">
+                    <option value="tennis">Tennis Scoring (15, 30, 40, Deuce)</option>
+                    <option value="points">First to X Points</option>
+                </select>
+            </div>
+
+            <div class="input-group" id="target-score-group" style="display: none;">
+                <label class="input-label">Target Points</label>
+                <input type="number" id="target-score" class="text-input" value="5" min="1" max="21">
+            </div>
+            
+            <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; margin-top: 10px;">Start Match</button>
+        </div>
+
+        <!-- MAIN GAME PANEL -->
+        <div class="panel hidden" id="game-panel">
+            <div class="hud-bar">
+                <div style="color: #7aa2f7;">{{user}}: <span id="score-user" class="score-highlight">0</span></div>
+                <div id="rule-display" style="font-size: 0.8em; color: #565f89; text-transform: uppercase;">Match</div>
+                <div style="color: #f7768e;"><span id="ai-name-display">AI</span>: <span id="score-ai" class="score-highlight">0</span></div>
+            </div>
+            
+            <div class="pong-arena">
+                <canvas id="pong-canvas" width="600" height="350"></canvas>
+                <div class="charge-instruction">
+                    Hold <b>Left-Click</b> or <b>Space</b> to charge power. Release just before hitting!
+                </div>
+            </div>
+        </div>
+
+        <!-- ROUND OVER PANEL (INTERSTITIAL) -->
+        <div class="panel hidden" id="round-panel">
+            <h2 class="text-center" id="round-winner-text" style="color: #e0af68; margin-bottom: 10px;">Point to User!</h2>
+            <div class="text-center" id="round-score-text" style="font-size: 1.2em; margin-bottom: 20px;">Score: 15 - 0</div>
+            
+            <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Roleplay the current rally:</p>
+            <textarea id="round-rp-text" placeholder='e.g. *I slam the puck past them with a wicked backhand.*'></textarea>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="action-btn confirm-btn" id="btn-push-round">Push & Next Round</button>
+                <button class="action-btn cancel-btn" id="btn-skip-round">Skip & Play</button>
+            </div>
+        </div>
+
+        <!-- END GAME PANEL -->
+        <div class="panel hidden" id="end-game-panel">
+            <h2 class="text-center" id="match-winner-text" style="color: #9ece6a; margin-bottom: 10px;">You Won the Match!</h2>
+            <div id="end-stats" class="text-center" style="margin-bottom: 20px; font-size: 1.3em; padding: 15px; background: #1a1b26; border-radius: 8px;"></div>
+            
+            <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Final Roleplay Response:</p>
+            <textarea id="end-rp-text" placeholder='e.g. *I throw my hands up in victory as the final point is scored.*'></textarea>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="action-btn confirm-btn" id="btn-confirm-end" style="margin-bottom: 0;">Push to Chat</button>
+                <button class="action-btn cancel-btn" id="btn-cancel-end" style="margin-bottom: 0;">Main Menu</button>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="pong.js"></script>
+</body>
+</html>
