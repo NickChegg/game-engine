@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claw Machine</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .select-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; }
+        .select-input:focus { outline: 1px solid var(--accent); }
+        
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .arena {
+            width: 400px;
+            height: 400px;
+            background-color: #15161e;
+            background-image: 
+                linear-gradient(rgba(86, 95, 137, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(86, 95, 137, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            border: 2px solid #565f89;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+            overflow: hidden;
+            margin-bottom: 15px;
+            user-select: none;
+        }
+
+        /* The prize drop chute */
+        .drop-hole {
+            position: absolute;
+            left: 0;
+            top: 320px;
+            width: 80px;
+            height: 80px;
+            background-color: #050505;
+            border: 2px dashed #f7768e;
+            box-sizing: border-box;
+        }
+
+        /* Prize Styles */
+        .prize {
+            position: absolute;
+            box-sizing: border-box;
+            box-shadow: inset -2px -2px 6px rgba(0,0,0,0.5), 2px 2px 5px rgba(0,0,0,0.5);
+            transition: opacity 0.3s;
+        }
+        .prize-small {
+            width: 40px; height: 40px;
+            background-color: #9ece6a;
+            border-radius: 50%;
+        }
+        .prize-medium {
+            width: 80px; height: 80px;
+            background-color: #7aa2f7;
+            border-radius: 20%;
+            border: 2px solid #565f89;
+        }
+        .prize-large {
+            width: 120px; height: 120px;
+            background-color: #bb9af7;
+            border-radius: 10%;
+            border: 3px solid #787c99;
+        }
+
+        /* The Claw */
+        .claw {
+            position: absolute;
+            width: 80px; height: 80px;
+            border: 4px solid #e0af68;
+            box-sizing: border-box;
+            z-index: 20;
+            pointer-events: none;
+            box-shadow: 0 0 15px rgba(224, 175, 104, 0.4), inset 0 0 10px rgba(224, 175, 104, 0.2);
+            /* Add some visual prongs to the box */
+            background: 
+                linear-gradient(#e0af68, #e0af68) top center/10px 10px no-repeat,
+                linear-gradient(#e0af68, #e0af68) bottom center/10px 10px no-repeat,
+                linear-gradient(#e0af68, #e0af68) left center/10px 10px no-repeat,
+                linear-gradient(#e0af68, #e0af68) right center/10px 10px no-repeat;
+        }
+
+        /* Dropping into the Z-axis */
+        .claw.dropping {
+            transform: scale(0.65);
+            border-color: #f7768e;
+            background: none; /* Hide prongs when closed */
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hud-text {
+            color: #89ddff;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            height: 20px;
+            text-align: center;
+        }
+
+        #action-btn {
+            background-color: #e0af68;
+            color: #1a1b26;
+            font-size: 1.2em;
+            padding: 20px;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        #action-btn:active { background-color: #ffc777; transform: scale(0.98); }
+
+        .free-aim-cursor {
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- SETUP PANEL -->
+        <div class="panel" id="setup-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="margin-bottom: 20px;">Claw Machine</h2>
+
+            <div class="input-group">
+                <label class="input-label">Control Mode</label>
+                <select id="mode-select" class="select-input">
+                    <option value="arcade" selected>Up & Across (Hold Button / Space)</option>
+                    <option value="free">Free Aim (Mouse Follow & Click)</option>
+                </select>
+            </div>
+            
+            <button class="action-btn confirm-btn" id="btn-start" style="width: 100%;">Insert Coin</button>
+        </div>
+
+        <!-- GAME PANEL -->
+        <div class="panel" id="game-panel" style="display: none;">
+            <div class="game-wrapper">
+                <div id="hud-status" class="hud-text">Ready</div>
+                
+                <div class="arena" id="arena">
+                    <div class="drop-hole"></div>
+                    <div id="prizes-container"></div>
+                    <div class="claw" id="claw"></div>
+                </div>
+
+                <button class="action-btn" id="action-btn" style="display: none;">HOLD TO MOVE</button>
+            </div>
+        </div>
+
+        <!-- END PANEL -->
+        <div class="panel" id="end-game-panel" style="display: none;">
+            <h2 class="text-center" id="end-title" style="margin-bottom: 10px;">Result</h2>
+            <div id="end-stats" class="text-center" style="margin-bottom: 20px; font-size: 1.1em; line-height: 1.4; padding: 15px; background: #1a1b26; border-radius: 8px;"></div>
+            
+            <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Your Roleplay Response:</p>
+            <textarea id="end-rp-text" placeholder='e.g. *I sigh in frustration as the plushie slips out.*'></textarea>
+            
+            <button class="action-btn confirm-btn" id="btn-confirm-end" style="margin-bottom: 10px;">Push to Chat</button>
+            
+            <div style="display: flex; gap: 10px;">
+                <button class="action-btn cancel-btn" id="btn-retry" style="margin-bottom: 0;">Retry (No Push)</button>
+                <a href="index.html" class="action-btn back-btn" style="margin-bottom: 0; flex: 1; text-align: center;">Menu</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script>
+        // DOM Elements
+        const setupPanel = document.getElementById("setup-panel");
+        const gamePanel = document.getElementById("game-panel");
+        const endGamePanel = document.getElementById("end-game-panel");
+        const modeSelect = document.getElementById("mode-select");
+        const btnStart = document.getElementById("btn-start");
+        const arena = document.getElementById("arena");
+        const prizesContainer = document.getElementById("prizes-container");
+        const clawElem = document.getElementById("claw");
+        const hudStatus = document.getElementById("hud-status");
+        const actionBtn = document.getElementById("action-btn");
+        
+        const endTitle = document.getElementById("end-title");
+        const endStats = document.getElementById("end-stats");
+        const endRpText = document.getElementById("end-rp-text");
+        const btnConfirmEnd = document.getElementById("btn-confirm-end");
+        const btnRetry = document.getElementById("btn-retry");
+
+        // Game State
+        let mode = "arcade";
+        let prizes = [];
+        let claw = { x: 0, y: 320, size: 80 };
+        let speed = 150; // pixels per second
+        let gameState = 0; // 0:Idle, 1:MovingUp, 2:WaitRight, 3:MovingRight, 4:Dropping, 5:Returning
+        let lastTime = 0;
+        let animationFrameId;
+        let isInputHeld = false;
+        let finalResultObject = null;
+
+        // Constants
+        const HOLE = { x: 0, y: 320, w: 80, h: 80 };
+        const PRIZE_DEFS = [
+            { id: 'large1', type: 'large', size: 120, count: 1 },
+            { id: 'medium', type: 'medium', size: 80, count: 2 },
+            { id: 'small', type: 'small', size: 40, count: 4 }
+        ];
+
+        // Setup Event Listeners
+        btnStart.addEventListener("click", startGame);
+        btnRetry.addEventListener("click", startGame);
+        
+        // Input Handling
+        actionBtn.addEventListener("mousedown", handleInputDown);
+        actionBtn.addEventListener("touchstart", (e) => { e.preventDefault(); handleInputDown(); });
+        document.addEventListener("mouseup", handleInputUp);
+        document.addEventListener("touchend", handleInputUp);
+        document.addEventListener("keydown", (e) => {
+            if (e.code === "Space" && gameState < 4 && gamePanel.style.display === "block") {
+                e.preventDefault();
+                if (!isInputHeld) handleInputDown();
+            }
+        });
+        document.addEventListener("keyup", (e) => {
+            if (e.code === "Space" && gamePanel.style.display === "block") {
+                handleInputUp();
+            }
+        });
+
+        // Free Aim specific
+        arena.addEventListener("mousemove", handleMouseMove);
+        arena.addEventListener("click", handleMouseClick);
+
+        function startGame() {
+            mode = modeSelect.value;
+            setupPanel.style.display = "none";
+            endGamePanel.style.display = "none";
+            gamePanel.style.display = "block";
+            
+            generatePrizes();
+            
+            // Reset Claw
+            claw.x = HOLE.x;
+            claw.y = HOLE.y;
+            clawElem.style.transition = 'none';
+            clawElem.classList.remove('dropping');
+            updateClawVisuals();
+
+            gameState = 0;
+            isInputHeld = false;
+
+            if (mode === "arcade") {
+                actionBtn.style.display = "block";
+                arena.classList.remove('free-aim-cursor');
+                hudStatus.innerText = "Hold Button/Space to move UP";
+                lastTime = performance.now();
+                animationFrameId = requestAnimationFrame(gameLoop);
+            } else {
+                actionBtn.style.display = "none";
+                arena.classList.add('free-aim-cursor');
+                hudStatus.innerText = "Aim with mouse and click to drop!";
+            }
+        }
+
+        function generatePrizes() {
+            prizesContainer.innerHTML = "";
+            prizes = [];
+
+            // Helper to check overlaps (Prizes must snap to 40px grid mentally for neatness)
+            const checkOverlap = (nx, ny, ns) => {
+                // Check hole
+                if (nx < HOLE.x + HOLE.w && nx + ns > HOLE.x && ny < HOLE.y + HOLE.h && ny + ns > HOLE.y) return true;
+                // Check others
+                for (let p of prizes) {
+                    if (nx < p.x + p.size && nx + ns > p.x && ny < p.y + p.size && ny + ns > p.y) return true;
+                }
+                return false;
+            };
+
+            PRIZE_DEFS.forEach(def => {
+                for (let i = 0; i < def.count; i++) {
+                    let placed = false;
+                    let attempts = 0;
+                    while (!placed && attempts < 200) {
+                        // Snap to 40px intervals for clean generation
+                        let gridMaxX = (400 - def.size) / 40;
+                        let gridMaxY = (400 - def.size) / 40;
+                        let rx = Math.floor(Math.random() * (gridMaxX + 1)) * 40;
+                        let ry = Math.floor(Math.random() * (gridMaxY + 1)) * 40;
+
+                        if (!checkOverlap(rx, ry, def.size)) {
+                            let el = document.createElement("div");
+                            el.className = `prize prize-${def.type}`;
+                            el.style.left = rx + "px";
+                            el.style.top = ry + "px";
+                            prizesContainer.appendChild(el);
+                            
+                            prizes.push({
+                                type: def.type,
+                                size: def.size,
+                                x: rx,
+                                y: ry,
+                                elem: el
+                            });
+                            placed = true;
+                        }
+                        attempts++;
+                    }
+                }
+            });
+        }
+
+        // ==========================================
+        // ARCADE MOVEMENT LOGIC
+        // ==========================================
+        function handleInputDown() {
+            if (mode !== "arcade") return;
+            isInputHeld = true;
+            if (gameState === 0) {
+                gameState = 1;
+                hudStatus.innerText = "Moving UP...";
+            } else if (gameState === 2) {
+                gameState = 3;
+                hudStatus.innerText = "Moving RIGHT...";
+            }
+        }
+
+        function handleInputUp() {
+            if (mode !== "arcade") return;
+            isInputHeld = false;
+            if (gameState === 1) {
+                gameState = 2;
+                hudStatus.innerText = "Hold Button/Space to move RIGHT";
+            } else if (gameState === 3) {
+                gameState = 4;
+                hudStatus.innerText = "Dropping!";
+                executeDrop();
+            }
+        }
+
+        function gameLoop(currentTime) {
+            if (gameState >= 4) return; // Stop loop when dropping
+
+            let dt = (currentTime - lastTime) / 1000;
+            lastTime = currentTime;
+
+            if (gameState === 1 && isInputHeld) {
+                claw.y -= speed * dt;
+                if (claw.y <= 0) {
+                    claw.y = 0;
+                    handleInputUp(); // Force release if hitting wall
+                }
+                updateClawVisuals();
+            }
+            else if (gameState === 3 && isInputHeld) {
+                claw.x += speed * dt;
+                if (claw.x >= 320) {
+                    claw.x = 320;
+                    handleInputUp(); // Force release if hitting wall
+                }
+                updateClawVisuals();
+            }
+
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        // ==========================================
+        // FREE AIM LOGIC
+        // ==========================================
+        function handleMouseMove(e) {
+            if (mode !== "free" || gameState >= 4) return;
+            
+            const rect = arena.getBoundingClientRect();
+            // Center claw on mouse
+            let rawX = (e.clientX - rect.left) - (claw.size / 2);
+            let rawY = (e.clientY - rect.top) - (claw.size / 2);
+
+            // Clamp to arena bounds
+            claw.x = Math.max(0, Math.min(320, rawX));
+            claw.y = Math.max(0, Math.min(320, rawY));
+            
+            updateClawVisuals();
+        }
+
+        function handleMouseClick() {
+            if (mode !== "free" || gameState >= 4) return;
+            gameState = 4;
+            hudStatus.innerText = "Dropping!";
+            executeDrop();
+        }
+
+        function updateClawVisuals() {
+            clawElem.style.left = claw.x + "px";
+            clawElem.style.top = claw.y + "px";
+        }
+
+        // ==========================================
+        // COLLISION & DROP LOGIC
+        // ==========================================
+        function executeDrop() {
+            clawElem.classList.add("dropping");
+            
+            setTimeout(() => {
+                let caughtPrize = null;
+                let failureReason = null;
+
+                // Evaluate Collisions based strictly on requested math
+                for (let p of prizes) {
+                    if (p.type === "small") {
+                        // Small (40px) MUST be entirely inside Claw (80px)
+                        if (p.x >= claw.x && p.x + p.size <= claw.x + claw.size &&
+                            p.y >= claw.y && p.y + p.size <= claw.y + claw.size) {
+                            caughtPrize = p;
+                            break;
+                        }
+                    } 
+                    else if (p.type === "medium") {
+                        // Medium (80px) MUST be hovered over directly (allow tiny 10px margin for human error in arcade)
+                        if (Math.abs(p.x - claw.x) <= 12 && Math.abs(p.y - claw.y) <= 12) {
+                            caughtPrize = p;
+                            break;
+                        }
+                    }
+                    else if (p.type === "large") {
+                        // Large (120px) MUST entirely encompass the Claw (80px)
+                        if (claw.x >= p.x && claw.x + claw.size <= p.x + p.size &&
+                            claw.y >= p.y && claw.y + claw.size <= p.y + p.size) {
+                            
+                            // 25% Chance to catch
+                            if (Math.random() <= 0.25) {
+                                caughtPrize = p;
+                            } else {
+                                failureReason = "dropped_large";
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // If caught, attach it visually for the return trip
+                if (caughtPrize) {
+                    caughtPrize.elem.style.opacity = "0"; // Just hide it from arena for simplicity
+                    clawElem.style.borderColor = "#9ece6a"; // Turn claw green to indicate catch
+                }
+
+                clawElem.classList.remove("dropping");
+                
+                // Return to base
+                setTimeout(() => {
+                    hudStatus.innerText = "Returning...";
+                    clawElem.style.transition = 'top 1s cubic-bezier(0.4, 0, 0.2, 1), left 1s cubic-bezier(0.4, 0, 0.2, 1)';
+                    claw.x = HOLE.x;
+                    claw.y = HOLE.y;
+                    updateClawVisuals();
+
+                    setTimeout(() => {
+                        resolveGame(caughtPrize, failureReason);
+                    }, 1000);
+                }, 500);
+
+            }, 500);
+        }
+
+        function resolveGame(prize, failureReason) {
+            finalResultObject = {};
+            let statusHtml = "";
+            
+            if (prize) {
+                statusHtml = `<span style="color: #9ece6a;">You won a <b>${prize.type.toUpperCase()}</b> prize!</span>`;
+                endTitle.style.color = "#9ece6a";
+                endTitle.innerText = "Winner!";
+                finalResultObject = { winners: ["{{user}}"] }; // User won, STBridge handles AI punishment
+                
+                finalResultObject.logString = `\`{{user}} won a ${prize.type} prize at the Claw Machine!\``;
+            } else if (failureReason === "dropped_large") {
+                statusHtml = `<span style="color: #f7768e;">You caught the prize, but the claw dropped it!</span>`;
+                endTitle.style.color = "#f7768e";
+                endTitle.innerText = "Almost!";
+                finalResultObject = { losers: ["{{user}}"] }; // User lost
+                
+                finalResultObject.logString = `\`{{user}} played the Claw Machine. They caught the large prize, but the claw dropped it!\``;
+            } else {
+                statusHtml = `<span style="color: #787c99;">You didn't catch anything.</span>`;
+                endTitle.style.color = "#a9b1d6";
+                endTitle.innerText = "Game Over";
+                finalResultObject = { losers: ["{{user}}"] }; // User lost
+                
+                finalResultObject.logString = `\`{{user}} played the Claw Machine but didn't catch anything.\``;
+            }
+
+            let modeString = mode === "arcade" ? "Up-and-Across Arcade Mode" : "Free Aim Mode";
+            finalResultObject.logString += `\n<Game played on ${modeString}. Roleplay accordingly.>`;
+
+            endStats.innerHTML = statusHtml;
+            gamePanel.style.display = "none";
+            endGamePanel.style.display = "block";
+        }
+
+        // ==========================================
+        // BRIDGE COMMUNICATION
+        // ==========================================
+        btnConfirmEnd.addEventListener("click", () => {
+            let resultString = finalResultObject.logString;
+            
+            const userRp = endRpText.value.trim();
+            if (userRp) resultString += `\n${userRp}`;
+
+            // Clean up object payload for the bridge
+            let payload = {};
+            if (finalResultObject.winners) payload.winners = finalResultObject.winners;
+            if (finalResultObject.losers) payload.losers = finalResultObject.losers;
+
+            STBridge.sendMessage(resultString, payload);
+
+            endRpText.value = "";
+            endGamePanel.style.display = "none";
+            setupPanel.style.display = "block";
+        });
+
+    </script>
+</body>
+</html>
