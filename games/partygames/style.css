@@ -864,3 +864,100 @@ textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
     box-shadow: inset 0 -4px 0 #ccc, 0 4px 8px rgba(0,0,0,0.5);
     margin-bottom: 10px;
 }
+
+/* =========================================
+   POP-UP PIRATE STYLES
+   ========================================= */
+.pup-arena {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #1a1b26;
+    border: 2px solid #565f89;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+.pup-main-img {
+    width: 220px;
+    height: auto;
+    margin-bottom: 25px;
+    user-select: none;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));
+}
+
+.pup-slots-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    width: 100%;
+}
+
+.pup-slots-container.disabled {
+    pointer-events: none;
+}
+
+.pup-slot-row {
+    display: flex;
+    gap: 8px; /* Spacing between slots for easy clicking */
+}
+
+.pup-slot {
+    width: 14px;
+    height: 45px;
+    background-color: #050505; /* Looks like an empty dark slit */
+    border: 1px solid #24283b;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+    box-shadow: inset 0 3px 6px rgba(0,0,0,0.9);
+}
+
+.pup-slot:hover:not(.filled) {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.pup-slot:active:not(.filled) {
+    transform: scale(0.95);
+}
+
+.pup-slot.filled {
+    cursor: default;
+    border: 1px solid rgba(0,0,0,0.5);
+    /* Filled color is applied dynamically in JS */
+}
+
+/* End Game Splash Screen */
+.pup-splash-container {
+    position: relative;
+    width: 280px;
+    height: 380px; /* Increased height to accommodate the higher jump */
+    margin: 0 auto 20px auto;
+}
+
+.pup-barrel-only {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    z-index: 1; /* Pushed behind the pirate */
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));
+}
+
+.pup-pirate-only {
+    position: absolute;
+    bottom: 60px; /* Sitting slightly higher so it rests on the front rim */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    z-index: 5; /* Placed in front of the barrel */
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pup-pirate-only.popped {
+    transform: translate(-50%, -280px) rotate(5deg); 
+}

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pop-up Pirate</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .select-input, .text-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; }
+        .select-input:focus, .text-input:focus { outline: 1px solid var(--accent); }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- SETUP PANEL -->
+        <div class="panel" id="setup-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="margin-bottom: 20px;">Pop-up Pirate</h2>
+
+            <div class="input-group">
+                <label class="input-label">Number of Players</label>
+                <select id="player-count" class="select-input">
+                    <option value="2">2 Players</option>
+                    <option value="3">3 Players</option>
+                    <option value="4">4 Players</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label" style="color: #9ece6a;">Opponent 1 Name (Green)</label>
+                <input type="text" id="p2-name" class="text-input" placeholder="e.g. Alice">
+            </div>
+
+            <div class="input-group" id="p3-group" style="display: none;">
+                <label class="input-label" style="color: #f7768e;">Opponent 2 Name (Red)</label>
+                <input type="text" id="p3-name" class="text-input" placeholder="e.g. Bob">
+            </div>
+
+            <div class="input-group" id="p4-group" style="display: none;">
+                <label class="input-label" style="color: #7aa2f7;">Opponent 3 Name (Blue)</label>
+                <input type="text" id="p4-name" class="text-input" placeholder="e.g. Charlie">
+            </div>
+            
+            <button class="action-btn confirm-btn" id="btn-start" style="width: 100%;">Start Game</button>
+        </div>
+
+        <!-- MAIN GAME PANEL -->
+        <div class="panel" id="game-panel" style="display: none;">
+            <h2 class="text-center" style="margin-bottom: 5px;">Pop-up Pirate</h2>
+            <div id="status-header" class="text-center" style="font-size: 1em; font-weight: bold; background: #1a1b26; padding: 10px; border-radius: 8px; border: 1px solid #565f89; margin-bottom: 10px;">
+                <!-- Status text injected via JS -->
+            </div>
+            
+            <!-- NEW: Mid-Game Push Section -->
+            <div style="margin-bottom: 15px; background: #1a1b26; padding: 10px; border-radius: 8px; border: 1px dashed #565f89;">
+                <textarea id="mid-rp-text" placeholder="e.g. *I carefully slide the knife into the slot, wincing as I wait for a pop.*" style="min-height: 80px; margin-bottom: 10px; font-size: 0.9em; padding: 10px;"></textarea>
+                <button class="action-btn cancel-btn" id="btn-mid-push" style="margin-bottom: 0; padding: 10px; font-size: 0.9em; border: 1px solid #7aa2f7; width: 100%;">
+                    Push Current State to Chat
+                </button>
+            </div>
+            
+            <div class="pup-arena">
+                <!-- Static Barrel Graphic -->
+                <img src="assets/pup_main.png" class="pup-main-img" alt="Barrel">
+                
+                <!-- Knife Slots -->
+                <div class="pup-slots-container" id="slots-container">
+                    <div class="pup-slot-row" id="row-top"></div>
+                    <div class="pup-slot-row" id="row-bot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- END GAME PANEL -->
+        <div class="panel" id="end-game-panel" style="display: none;">
+            <h2 class="text-center" style="color: #f7768e; margin-bottom: 10px;">Game Over</h2>
+            
+            <!-- Exploding Graphic -->
+            <div class="pup-splash-container">
+                <img src="assets/pup_barrel.png" class="pup-barrel-only" alt="Empty Barrel">
+                <img src="assets/pup_pirate.png" id="flying-pirate" class="pup-pirate-only" alt="Flying Pirate">
+            </div>
+
+            <div id="end-stats" class="text-center" style="margin-bottom: 20px; font-size: 1.3em; line-height: 1.4; padding: 15px; background: #1a1b26; border-radius: 8px; border: 1px solid #f7768e;"></div>
+            
+            <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Your Roleplay Response:</p>
+            <textarea id="end-rp-text" placeholder='e.g. *I jump back in surprise as the pirate shoots into the air!*'></textarea>
+            
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="action-btn confirm-btn" id="btn-confirm-end" style="margin-bottom: 0;">Push to Chat</button>
+                <button class="action-btn cancel-btn" id="btn-retry" style="margin-bottom: 0;">Play Again</button>
+            </div>
+            <a href="index.html" class="action-btn back-btn" style="margin-top: 10px; width: 100%; border: 1px solid #565f89;">Return to Menu (No Push)</a>
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="popuppirate.js"></script>
+</body>
+</html>
