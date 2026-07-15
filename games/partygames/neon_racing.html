@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Racing</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Lock layout so the menu stays on the left */
+        body { padding: 20px; overflow-x: auto; }
+        #app { 
+            max-width: 1200px !important; 
+            display: flex; 
+            flex-direction: row; 
+            flex-wrap: nowrap !important; /* Prevents wrapping to top */
+            justify-content: flex-start; 
+            gap: 20px; 
+            align-items: stretch; 
+            width: max-content; 
+            min-width: 100%;
+        }
+        .side-panel { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; }
+        .main-panel { flex-grow: 1; display: flex; justify-content: center; align-items: center; }
+        
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .select-input, .text-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; box-sizing: border-box; }
+        .select-input:focus, .text-input:focus { outline: 1px solid var(--accent); }
+        
+        .player-row { background: #1a1b26; border: 1px solid #24283b; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 5px;}
+        .player-row-header { font-weight: bold; font-size: 0.9em; text-transform: uppercase; }
+        
+        .game-area-wrapper { display: flex; gap: 15px; height: 500px; align-items: stretch; }
+        .gear-hud { width: 50px; background: #050505; border: 2px solid #565f89; border-radius: 8px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        .gear-bar-fill { width: 100%; background: #e0af68; transition: height 0.1s linear, background 0.2s; }
+        .gear-bar-fill.ready { background: #9ece6a; box-shadow: 0 0 15px #9ece6a; }
+        .gear-number { position: absolute; top: 10px; left: 0; width: 100%; text-align: center; color: white; font-weight: bold; font-size: 1.5em; z-index: 10; text-shadow: 0 2px 4px #000; }
+        
+        /* Modal for mid-game push */
+        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: #1a1b26; border: 2px solid #f7768e; border-radius: 8px; padding: 20px; width: 90%; max-width: 400px; box-shadow: 0 0 30px rgba(247,118,142,0.3); text-align: center;}
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- LEFT PANEL -->
+        <div class="panel side-panel" id="side-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="color: #e0af68; margin-bottom: 20px;">🏎️ Neon Racing</h2>
+
+            <!-- SETUP PHASE -->
+            <div id="setup-phase">
+                <div class="input-group">
+                    <label class="input-label">Game Mode</label>
+                    <select id="game-mode" class="select-input">
+                        <option value="race">Race (Set Distance)</option>
+                        <option value="takedown">Takedown (Instant Death)</option>
+                    </select>
+                </div>
+                
+                <div class="input-group" id="dist-group">
+                    <label class="input-label">Race Distance</label>
+                    <input type="number" id="race-dist" class="text-input" value="15000">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Track Walls (Sides)</label>
+                    <select id="game-sides" class="select-input">
+                        <option value="true">Sides (Bounce & Slow down)</option>
+                        <option value="false">Sideless (Fall off = Spin Out)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Mid-Game Notifications</label>
+                    <select id="game-notifs" class="select-input">
+                        <option value="true">Push to Chat when cars Spin Out</option>
+                        <option value="false">Silent (Log at end only)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Number of Racers (2-6)</label>
+                    <select id="player-count" class="select-input">
+                        <option value="2">2 Players</option>
+                        <option value="3">3 Players</option>
+                        <option value="4" selected>4 Players</option>
+                        <option value="5">5 Players</option>
+                        <option value="6">6 Players</option>
+                    </select>
+                </div>
+
+                <div id="players-container" style="max-height: 40vh; overflow-y: auto; padding-right: 5px; margin-bottom: 15px;">
+                    <!-- JS Injected Players -->
+                </div>
+                
+                <button class="action-btn confirm-btn" id="btn-start" style="width: 100%; background: #e0af68; color: #1a1b26;">Start Engine</button>
+            </div>
+
+            <!-- IN-GAME HUD -->
+            <div id="game-controls-phase" style="display: none; flex-grow: 1; flex-direction: column;">
+                <div style="background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #565f89; margin-bottom: 15px; flex-grow: 1;">
+                    <h3 style="color: #7aa2f7; text-align: center; margin-bottom: 10px;">Race Status</h3>
+                    <div id="race-standings" style="font-size: 0.9em; color: #a9b1d6; display: flex; flex-direction: column; gap: 8px;">
+                        <!-- JS Injected Standings -->
+                    </div>
+                </div>
+                
+                <div style="background: #15161e; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px;">
+                    <p style="color: #e0af68; font-weight: bold; font-size: 0.9em; margin-bottom: 5px;">CONTROLS</p>
+                    <p style="color: #787c99; font-size: 0.8em;">W / S : Accelerate / Brake<br>A / D : Steer Left / Right<br>SPACE : Gear Up (When Bar Green)</p>
+                </div>
+
+                <button class="action-btn cancel-btn" id="btn-restart" style="width: 100%; margin-bottom: 0;">🛑 Abort Race</button>
+            </div>
+
+            <!-- END PHASE -->
+            <div id="end-phase" style="display: none; margin-top: 20px;">
+                <h3 class="text-center" style="color: white; margin-bottom: 15px;">Race Finished</h3>
+                <div id="end-stats" class="text-center" style="margin-bottom: 15px; font-size: 1.1em; line-height: 1.4; padding: 15px; background: #1a1b26; border-radius: 8px; color: #a9b1d6;"></div>
+                
+                <textarea id="end-rp-text" placeholder="Final roleplay response..." style="min-height: 80px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; box-sizing: border-box; resize: vertical;"></textarea>
+                
+                <button class="action-btn confirm-btn" id="btn-push-end" style="width: 100%; margin-bottom: 10px; background: #e0af68; color: #1a1b26;">Push Results to Chat</button>
+                <button class="action-btn cancel-btn" id="btn-menu" style="width: 100%; margin-bottom: 0;">Back to Setup</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Canvas & UI -->
+        <div class="panel main-panel">
+            <div class="game-area-wrapper">
+                <div class="driver-arena" style="padding: 0; border: 4px solid #565f89; overflow: hidden; position: relative;">
+                    <canvas id="game-canvas" width="360" height="500" style="background: #050505;"></canvas>
+                    
+                    <!-- Mid Game Modal Overlay -->
+                    <div id="mid-modal" class="modal-overlay" style="display: none;">
+                        <div class="modal-content">
+                            <h3 style="color: #f7768e; margin-bottom: 10px;">CRASH!</h3>
+                            <p id="mid-modal-text" style="color: #a9b1d6; margin-bottom: 15px; font-size: 0.9em;"></p>
+                            <textarea id="mid-rp-text" placeholder="Add RP response..." style="width: 100%; min-height: 60px; margin-bottom: 15px; padding: 10px; border-radius: 5px; background: #050505; color: white; border: 1px solid #565f89;"></textarea>
+                            <button class="action-btn confirm-btn" id="btn-mid-push" style="width: 100%; margin-bottom: 0;">Push & Resume</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GEAR HUD -->
+                <div class="gear-hud">
+                    <div class="gear-number" id="gear-display">1</div>
+                    <div class="gear-bar-fill" id="gear-fill" style="height: 0%;"></div>
+                    <!-- Threshold line -->
+                    <div style="position: absolute; bottom: 90%; left: 0; width: 100%; height: 2px; background: white; z-index: 5;"></div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="neon_racing.js"></script>
+</body>
+</html>
