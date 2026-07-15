@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liar's Dice</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Changed flex-wrap to nowrap and added overflow handling to lock panel to the left */
+        #app { max-width: 900px !important; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 20px; align-items: flex-start; width: 100%; overflow-x: auto; padding-bottom: 20px;}
+        
+        /* Flex-shrink: 0 ensures the panel never squishes or moves to the top */
+        .side-panel { width: 320px; flex-shrink: 0; align-self: flex-start; }
+        .main-panel { flex-grow: 1; min-width: 400px; max-width: 550px; align-self: flex-start; }
+        
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .text-input, .select-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; box-sizing: border-box;}
+        .text-input:focus, .select-input:focus { outline: 1px solid var(--accent); }
+        .setup-card { background: #1a1b26; border: 1px solid #24283b; border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #565f89;}
+        
+        .die { display: inline-flex; justify-content: center; align-items: center; width: 45px; height: 45px; background: #e0e6ed; color: #111; font-size: 2.2em; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.4); margin: 3px; line-height: 1; user-select: none; }
+        .die-hidden { background: #565f89; color: #1a1b26; font-size: 1.5em; font-weight: bold; }
+        
+        .table-area { background: #1a1b26; border-radius: 12px; padding: 20px; border: 2px solid #24283b; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); margin-bottom: 15px; text-align: center; }
+        .player-hand { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #24283b; }
+        .player-hand:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .player-name { font-weight: bold; color: #7aa2f7; margin-bottom: 5px; font-size: 1.1em; }
+        
+        .bid-display { background: #24283b; padding: 15px; border-radius: 8px; border: 2px solid #e0af68; color: #e0af68; font-weight: bold; font-size: 1.2em; margin-bottom: 15px; text-align: center; box-shadow: 0 4px 10px rgba(224, 175, 104, 0.1); }
+        
+        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        
+        .rp-box { background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #565f89; margin-bottom: 15px; }
+        .rp-textarea { min-height: 60px; margin-bottom: 10px; background: #24283b; color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; resize: vertical; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- LEFT PANEL -->
+        <div class="panel side-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="color: #e0af68; margin-bottom: 20px;">Liar's Dice</h2>
+
+            <!-- Setup Phase -->
+            <div id="setup-phase">
+                <div class="input-group">
+                    <label class="input-label">Number of Players (Total)</label>
+                    <!-- Changed to a free-form number input -->
+                    <input type="number" id="player-count" class="text-input" value="2" min="2" max="20">
+                </div>
+
+                <div id="player-settings-container">
+                    <!-- Populated by JS -->
+                </div>
+                
+                <button class="action-btn confirm-btn" id="btn-start" style="width: 100%;">Start Game</button>
+            </div>
+
+            <!-- In-Game Info Panel -->
+            <div id="game-controls-phase" style="display: none;">
+                <div id="turn-indicator" class="text-center" style="font-size: 1.2em; font-weight: bold; margin-bottom: 15px; padding: 10px; border-radius: 8px; background: #1a1b26; color: #9ece6a;"></div>
+                
+                <div id="midgame-rp-area" class="rp-box" style="display: none;">
+                    <p style="font-size: 0.8em; color: #e0af68; margin-bottom: 8px; font-weight: bold;">MID-GAME ROLEPLAY (YOUR TURN)</p>
+                    <textarea id="midgame-rp-text" class="rp-textarea" placeholder="Describe your reaction or dialogue..."></textarea>
+                    <button class="action-btn" id="btn-push-midgame" style="background-color: #565f89; color: white; margin-bottom: 0; font-size: 0.9em; width: 100%;">Push State to Chat</button>
+                </div>
+
+                <button class="action-btn cancel-btn" id="btn-restart" style="width: 100%; margin-bottom: 0;">🔄 Quit Match</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="panel main-panel">
+            
+            <!-- Game Board -->
+            <div id="battle-phase" style="display: none;">
+                
+                <div id="current-bid-display" class="bid-display">Waiting for first bid...</div>
+
+                <div class="table-area" id="opponent-area">
+                    <!-- Opponent dice (hidden) populated by JS -->
+                </div>
+
+                <div class="table-area" id="user-area" style="border-color: #7aa2f7;">
+                    <!-- User dice populated by JS -->
+                </div>
+
+                <!-- Play Controls (Only active on User turn) -->
+                <div id="action-controls" style="display: none; background: #1a1b26; padding: 15px; border-radius: 8px; border: 1px solid #565f89;">
+                    <div class="controls-grid">
+                        <div>
+                            <label class="input-label">Quantity</label>
+                            <input type="number" id="bid-qty" class="text-input" min="1" value="1">
+                        </div>
+                        <div>
+                            <label class="input-label">Face Value</label>
+                            <select id="bid-face" class="select-input">
+                                <option value="1">⚀ Ones</option>
+                                <option value="2">⚁ Twos</option>
+                                <option value="3">⚂ Threes</option>
+                                <option value="4">⚃ Fours</option>
+                                <option value="5">⚄ Fives</option>
+                                <option value="6">⚅ Sixes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="action-btn confirm-btn" id="btn-make-bid" style="width: 100%; margin-bottom: 10px;">Raise Bid</button>
+                    <button class="action-btn" id="btn-call-liar" style="width: 100%; background-color: #f7768e; color: #1a1b26; margin-bottom: 0;" disabled>Call Liar!</button>
+                </div>
+            </div>
+
+            <!-- Reveal / Challenge Phase -->
+            <div id="reveal-phase" style="display: none; text-align: center;">
+                <h2 style="color: #f7768e; margin-bottom: 15px;" id="reveal-title">Challenge!</h2>
+                
+                <div class="table-area" id="reveal-table">
+                    <!-- Everyone's dice shown here -->
+                </div>
+
+                <div class="rp-box" style="border-color: #f7768e;">
+                    <p id="reveal-result-text" style="font-size: 1.1em; color: #a9b1d6; margin-bottom: 15px; font-weight: bold;"></p>
+                    <p style="font-size: 0.85em; color: #f7768e; margin-bottom: 8px; text-transform: uppercase;">Roleplay the outcome</p>
+                    <textarea id="reveal-rp-text" class="rp-textarea" placeholder="Narrate the reveal and the reaction of the loser..."></textarea>
+                    <button class="action-btn confirm-btn" id="btn-push-reveal" style="width: 100%; margin-bottom: 0;">Push Results & Continue</button>
+                </div>
+            </div>
+
+            <!-- End Game Screen -->
+            <div id="end-phase" style="display: none; margin-top: 20px;">
+                <h2 class="text-center" style="color: #e0af68; margin-bottom: 15px;">Game Over</h2>
+                <div id="end-stats" class="text-center" style="margin-bottom: 15px; font-size: 1.3em; font-weight: bold; padding: 15px; background: #1a1b26; border-radius: 8px;"></div>
+                <button class="action-btn confirm-btn" id="btn-return-menu" style="width: 100%;">Return to Menu</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="liarsdice.js"></script>
+</body>
+</html>

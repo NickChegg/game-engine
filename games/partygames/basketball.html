@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Hoops</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .input-group { margin-bottom: 15px; }
+        
+        /* Game Arena */
+        .bb-arena {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            background: linear-gradient(180deg, #24283b 0%, #15161e 100%);
+            border: 2px solid #e0af68;
+            border-radius: 8px;
+            overflow: hidden;
+            user-select: none;
+            touch-action: none;
+            box-shadow: inset 0 0 30px rgba(224, 175, 104, 0.1);
+            margin-bottom: 15px;
+        }
+
+        /* Court Grid & Markers */
+        .bb-center-line {
+            position: absolute;
+            left: 50%; top: 0; bottom: 0;
+            width: 2px;
+            background: dashed rgba(255, 255, 255, 0.1) 4px;
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        /* Hoop Elements */
+        .bb-backboard {
+            position: absolute;
+            top: 40px; left: 50%;
+            transform: translateX(-50%);
+            width: 100px; height: 70px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid #a9b1d6;
+            border-radius: 5px;
+            pointer-events: none;
+        }
+        .bb-backboard-inner {
+            position: absolute;
+            bottom: 5px; left: 50%;
+            transform: translateX(-50%);
+            width: 40px; height: 30px;
+            border: 2px solid #f7768e;
+        }
+        .bb-hoop {
+            position: absolute;
+            top: 95px; left: 50%;
+            transform: translateX(-50%);
+            width: 60px; height: 15px;
+            border: 4px solid #f7768e;
+            border-radius: 50%;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            z-index: 5;
+            pointer-events: none;
+        }
+        .bb-hoop-front {
+            position: absolute;
+            top: 95px; left: 50%;
+            transform: translateX(-50%);
+            width: 60px; height: 15px;
+            border: 4px solid transparent;
+            border-bottom-color: #f7768e;
+            border-radius: 50%;
+            z-index: 15; /* Renders over the ball when it goes in */
+            pointer-events: none;
+        }
+
+        /* The Basketball */
+        .bb-ball {
+            position: absolute;
+            width: 40px; height: 40px;
+            background: radial-gradient(circle at 30% 30%, #e0af68, #b76c20);
+            border-radius: 50%;
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.5), 0 5px 10px rgba(0,0,0,0.4);
+            transform: translate(-50%, -50%);
+            cursor: grab;
+            z-index: 10;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .bb-ball::before, .bb-ball::after {
+            content: ''; position: absolute; width: 100%; height: 2px; background: rgba(0,0,0,0.6);
+        }
+        .bb-ball::after { transform: rotate(90deg); }
+        .bb-ball:active { cursor: grabbing; }
+
+        /* Power Meter */
+        .power-bar-container {
+            width: 100%; height: 20px;
+            background: #15161e; border: 2px solid #24283b;
+            border-radius: 10px; overflow: hidden; margin-bottom: 10px;
+            position: relative;
+        }
+        .power-bar-fill {
+            width: 0%; height: 100%;
+            background: linear-gradient(90deg, #f7768e 0%, #9ece6a 50%, #f7768e 100%);
+            transition: width 0.05s linear;
+        }
+        .power-bar-text {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            color: white; font-size: 0.8em; font-weight: bold; text-shadow: 1px 1px 2px #000;
+        }
+
+        .hud-stats { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.2em; font-weight: bold; }
+        .stat-time { color: #f7768e; }
+        .stat-score { color: #9ece6a; }
+
+        /* Feedback Floaters */
+        .float-text {
+            position: absolute; font-weight: bold; font-size: 1.2em; pointer-events: none; z-index: 20;
+            animation: floatFade 0.8s forwards; transform: translate(-50%, -50%);
+        }
+        @keyframes floatFade {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- SETUP PANEL -->
+        <div class="panel" id="setup-panel">
+            <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+            <h2 class="text-center" style="margin-bottom: 20px; color: #e0af68;">Arcade Hoops</h2>
+            
+            <p class="text-center" style="font-size: 0.95em; color: #a9b1d6; margin-bottom: 30px; line-height: 1.4;">
+                Click and hold the ball, or hold the Spacebar, to grab it and charge power.
+            </p>
+            
+            <button class="action-btn confirm-btn" id="btn-start" style="width: 100%;">Start 30s Round</button>
+        </div>
+
+        <!-- GAME PANEL -->
+        <div class="panel" id="game-panel" style="display: none;">
+            <div class="hud-stats">
+                <div class="stat-time">Time: <span id="time-val">30</span>s</div>
+                <div class="stat-score">Score: <span id="score-val">0</span></div>
+            </div>
+
+            <div class="power-bar-container">
+                <div class="power-bar-fill" id="power-fill"></div>
+                <div class="power-bar-text" id="power-text">0%</div>
+            </div>
+
+            <div class="bb-arena" id="arena">
+                <div class="bb-center-line"></div>
+                <div class="bb-backboard">
+                    <div class="bb-backboard-inner"></div>
+                </div>
+                <div class="bb-hoop"></div>
+                <div class="bb-hoop-front"></div>
+                
+                <div class="bb-ball" id="ball"></div>
+            </div>
+        </div>
+
+        <!-- END GAME PANEL -->
+        <div class="panel" id="end-game-panel" style="display: none;">
+            <h2 class="text-center" style="color: #e0af68; margin-bottom: 10px;">Time's Up!</h2>
+            <div id="end-stats" class="text-center" style="margin-bottom: 20px; font-size: 1.3em; line-height: 1.4; padding: 15px; background: #1a1b26; border-radius: 8px;"></div>
+            
+            <p style="margin-bottom: 5px; font-size: 0.9em; color: #787c99;">Your Roleplay Response:</p>
+            <textarea id="end-rp-text" placeholder='e.g. *I wipe the sweat from my forehead after sinking the final shot.*'></textarea>
+            
+            <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                <!-- Main Push Action -->
+                <button class="action-btn confirm-btn" id="btn-confirm-end" style="flex: 100%; margin-bottom: 10px;">Push to Chat</button>
+                
+                <!-- Secondary Actions that don't push -->
+                <button class="action-btn cancel-btn" id="btn-retry-end" style="flex: 1; margin-bottom: 0;">Retry</button>
+                <a href="index.html" class="action-btn" style="flex: 1; margin-bottom: 0; background-color: #24283b; color: white; border: 1px solid #565f89;">Menu</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="basketball.js"></script>
+</body>
+</html>
