@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billiards & Snooker</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { align-items: flex-start; padding-top: 3vh; }
+        #app-billiards {
+            display: flex; gap: 30px; width: 100%; max-width: 900px;
+            margin: 0 auto; align-items: flex-start; justify-content: center;
+        }
+        
+        .left-panel {
+            width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 15px;
+        }
+        
+        .right-panel {
+            flex-grow: 1; display: flex; justify-content: center; align-items: center;
+            background: var(--panel-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            max-width: 440px;
+        }
+
+        .input-group { margin-bottom: 10px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .select-input, .text-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; }
+        
+        .table-wrapper {
+            position: relative;
+            border-radius: 10px;
+            background-color: #15161e;
+        }
+        
+        #pool-canvas {
+            border-radius: 10px;
+            cursor: crosshair;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+
+        .turn-indicator { font-size: 1.2em; font-weight: bold; text-align: center; color: var(--accent); margin-bottom: 5px; }
+        .suit-indicator { font-size: 0.85em; text-align: center; color: #a9b1d6; margin-bottom: 10px; min-height: 20px;}
+        .log-box { background: #15161e; padding: 10px; border-radius: 5px; font-size: 0.85em; color: #787c99; min-height: 50px; margin-bottom: 10px; line-height: 1.4; border: 1px solid #24283b;}
+        
+        .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; font-weight: bold; margin-left: 5px; }
+        .badge-solid { background: #e0af68; color: #1a1b26; }
+        .badge-stripe { background: #a9b1d6; color: #1a1b26; border: 1px dashed #1a1b26; }
+        .badge-snooker { background: #d32f2f; color: white; }
+        .badge-red { background: #d32f2f; color: white; }
+        .badge-yellow { background: #f5d142; color: #111; }
+    </style>
+</head>
+<body>
+    <div id="app-billiards">
+        
+        <!-- LOCKED LEFT PANEL -->
+        <div class="left-panel">
+            
+            <div class="panel" id="setup-panel">
+                <a href="index.html" class="action-btn back-btn">⬅ Back to Menu</a>
+                <h2 class="text-center" style="margin-bottom: 15px;">Billiards & Snooker</h2>
+
+                <div class="input-group">
+                    <label class="input-label">Game Mode</label>
+                    <select id="game-mode" class="select-input">
+                        <option value="8ball">8-Ball Pool</option>
+                        <option value="blackball" style="color: #e0af68; font-weight: bold;">🔴🟡 Blackball</option>
+                        <option value="9ball">9-Ball Pool</option>
+                        <option value="snooker" style="color: #f7768e; font-weight: bold;">🔴 Snooker</option>
+                    </select>
+                </div>
+
+                <div style="background: #1a1b26; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                    <label class="input-label" style="color: #7aa2f7;">Player 1</label>
+                    <input type="text" id="p1-name" class="text-input" value="{{user}}" style="margin-bottom: 5px;">
+                    <select id="p1-type" class="select-input">
+                        <option value="human">Human</option>
+                        <option value="ai-easy">AI (Easy)</option>
+                        <option value="ai-med">AI (Medium)</option>
+                        <option value="ai-hard">AI (Hard)</option>
+                    </select>
+                </div>
+
+                <div style="background: #1a1b26; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    <label class="input-label" style="color: #f7768e;">Player 2</label>
+                    <input type="text" id="p2-name" class="text-input" value="Alice" style="margin-bottom: 5px;">
+                    <select id="p2-type" class="select-input">
+                        <option value="human">Human</option>
+                        <option value="ai-easy">AI (Easy)</option>
+                        <option value="ai-med" selected>AI (Medium)</option>
+                        <option value="ai-hard">AI (Hard)</option>
+                    </select>
+                </div>
+
+                <button class="action-btn confirm-btn" id="btn-start">Rack 'em Up</button>
+            </div>
+
+            <div class="panel" id="game-panel" style="display: none;">
+                <div class="turn-indicator" id="turn-display">P1's Turn</div>
+                <div class="suit-indicator" id="suit-display">Table is Open</div>
+                
+                <label class="input-label">Previous Action</label>
+                <div class="log-box" id="action-log">Game started. Waiting for the break.</div>
+
+                <label class="input-label">Push Mid-Game RP (Optional)</label>
+                <textarea id="mid-rp-text" placeholder="*Walks around the table, chalking the cue...*" style="min-height: 80px; margin-bottom: 10px;"></textarea>
+                
+                <button class="action-btn" id="btn-push-mid" style="background-color: #89ddff; color: #1a1b26; margin-bottom: 5px;">Push State to Chat</button>
+                <button class="action-btn end-btn" id="btn-forfeit" style="font-size: 0.9em; padding: 10px;">Forfeit Game</button>
+            </div>
+
+            <div class="panel" id="end-panel" style="display: none;">
+                <h2 class="text-center" style="color: #f7768e; margin-bottom: 10px;">Game Over</h2>
+                <div id="end-stats" class="text-center" style="margin-bottom: 15px; font-size: 1.2em; font-weight: bold;"></div>
+                
+                <label class="input-label">Final RP Response</label>
+                <textarea id="end-rp-text" placeholder="*Smirks and puts the cue stick away.*" style="margin-bottom: 10px;"></textarea>
+                
+                <button class="action-btn confirm-btn" id="btn-confirm-end">Push Win/Loss</button>
+                <button class="action-btn reset-btn" id="btn-reset">Play Again</button>
+                <a href="index.html" class="action-btn back-btn" style="border: none; background: #1a1b26;">Back to Menu</a>
+            </div>
+
+        </div>
+
+        <div class="right-panel">
+            <div class="table-wrapper">
+                <canvas id="pool-canvas" width="380" height="740"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="st_bridge.js"></script>
+    <script src="billiards.js"></script>
+</body>
+</html>
