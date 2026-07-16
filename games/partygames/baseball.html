@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batting Cage</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Custom Flex Layout for Side-by-Side Panels */
+        body { align-items: flex-start; padding-top: 40px; overflow-x: auto; }
+        .baseball-app { display: flex; gap: 20px; width: 100%; max-width: 950px; flex-wrap: nowrap; margin: 0 auto; }
+        
+        .left-panel { flex: 0 0 320px; display: flex; flex-direction: column; gap: 15px; }
+        .right-panel { flex: 1; min-width: 500px; }
+
+        .input-group { margin-bottom: 12px; }
+        .input-label { display: block; font-size: 0.85em; color: #787c99; margin-bottom: 5px; text-transform: uppercase; }
+        .select-input, .text-input { width: 100%; background-color: #1a1b26; color: var(--text-main); border: 1px solid #15161e; border-radius: 5px; padding: 10px; font-size: 1em; }
+        .select-input:focus, .text-input:focus { outline: 1px solid var(--accent); }
+        
+        /* Player List Setup */
+        .player-row { display: flex; justify-content: space-between; background: #1a1b26; padding: 8px; border-radius: 5px; margin-bottom: 5px; border: 1px solid #24283b;}
+        .remove-btn { background: #f7768e; color: #1a1b26; border: none; border-radius: 3px; cursor: pointer; padding: 0 8px; font-weight: bold; }
+        .add-player-box { display: flex; gap: 5px; }
+
+        /* Scoreboard */
+        .scoreboard { background: #1a1b26; padding: 10px; border-radius: 8px; border: 1px solid #565f89; margin-bottom: 15px;}
+        .score-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; padding: 5px; border-radius: 4px; }
+        .score-row.active { background: rgba(122, 162, 247, 0.2); border: 1px solid #7aa2f7; color: #89ddff; }
+
+        /* Bases HUD (Runs Mode) */
+        .bases-hud { display: flex; justify-content: center; gap: 15px; margin-bottom: 15px; background: #1a1b26; padding: 15px; border-radius: 8px; }
+        .base-icon { width: 25px; height: 25px; background: #24283b; border: 2px solid #565f89; transform: rotate(45deg); transition: background 0.3s; }
+        .base-icon.occupied { background: #e0af68; border-color: #ff9eaf; box-shadow: 0 0 10px rgba(224, 175, 104, 0.5); }
+        .base-label { position: absolute; transform: rotate(-45deg); font-size: 0.6em; color: white; top: 2px; left: 6px; }
+
+        /* Batting Cage Arena */
+        .bb-arena {
+            position: relative; width: 100%; height: 450px; 
+            background: #1a1b26; 
+            background-image: 
+                linear-gradient(rgba(86, 95, 137, 0.2) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(86, 95, 137, 0.2) 2px, transparent 2px);
+            background-size: 50px 50px;
+            border: 2px solid #565f89; border-radius: 8px; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+            overflow: hidden; user-select: none;
+        }
+
+        .bb-batter { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 4em; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); }
+        .bb-pitcher { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 3em; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); transition: transform 0.2s; }
+        .bb-pitcher.throwing { transform: translateY(-50%) scaleX(1.2) rotate(-10deg); }
+
+        .bb-strikezone {
+            position: absolute; left: 90px; top: 15%; height: 70%; width: 50px;
+            display: flex; flex-direction: column; gap: 10px; z-index: 5;
+        }
+        .bb-box {
+            flex: 1; border: 2px dashed #565f89; border-radius: 8px;
+            background: rgba(86, 95, 137, 0.1); cursor: pointer; transition: all 0.1s;
+            display: flex; justify-content: center; align-items: center; font-weight: bold; color: rgba(255,255,255,0.2);
+        }
+        .bb-box:hover { background: rgba(122, 162, 247, 0.3); border-color: #7aa2f7; color: rgba(255,255,255,0.8); }
+        .bb-box:active { transform: scale(0.95); background: rgba(247, 118, 142, 0.4); border-color: #f7768e; }
+        
+        /* Difficulty visual helpers */
+        .bb-box.highlight { background: rgba(158, 206, 106, 0.4); border-color: #9ece6a; box-shadow: 0 0 15px rgba(158, 206, 106, 0.3); }
+        .bb-box.flash { background: rgba(224, 175, 104, 0.4); border-color: #e0af68; }
+
+        .bb-ball {
+            position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.6), inset -2px -2px 4px rgba(0,0,0,0.3);
+            display: none; z-index: 10; transform: translate(-50%, -50%);
+        }
+        .bb-ball.perfect-window { background: #9ece6a; box-shadow: 0 0 15px #9ece6a; }
+
+        .game-status-text { text-align: center; font-size: 1.2em; color: #a9b1d6; font-weight: bold; margin-bottom: 10px; min-height: 28px; }
+        
+        /* Floating Result Text */
+        .float-result {
+            position: absolute; left: 150px; font-weight: bold; font-size: 2em; pointer-events: none; z-index: 20;
+            animation: floatUp 1s forwards; text-shadow: 2px 2px 5px black;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(0.8); }
+            100% { opacity: 0; transform: translateY(-60px) scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="baseball-app">
+        
+        <!-- LEFT PANEL: SETUP & CONTROLS -->
+        <div class="panel left-panel">
+            <a href="index.html" class="action-btn back-btn" style="margin-bottom: 5px;">⬅ Menu</a>
+            <h2 class="text-center" style="margin-bottom: 15px; color: #7aa2f7;">Batting Cage</h2>
+
+            <!-- SETUP VIEW -->
+            <div id="setup-view">
+                <div class="input-group">
+                    <label class="input-label">Game Mode</label>
+                    <select id="sel-mode" class="select-input">
+                        <option value="points">Points (10 Pitches per Player)</option>
+                        <option value="runs">Runs (3 Strikes = Out)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Pitcher Difficulty</label>
+                    <select id="sel-diff" class="select-input">
+                        <option value="easy">Easy (Wide Window + Highlights)</option>
+                        <option value="medium" selected>Medium (Standard + Flash)</option>
+                        <option value="hard">Hard (Tight Window + No Help)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Participants</label>
+                    <div id="player-list-container" style="margin-bottom: 10px;">
+                        <div class="player-row"><span>{{user}}</span></div>
+                    </div>
+                    <div class="add-player-box">
+                        <input type="text" id="new-player-name" class="text-input" placeholder="AI Name...">
+                        <button id="btn-add-player" class="action-btn" style="width: auto; margin:0; padding: 0 15px; background: #565f89; color: white;">+</button>
+                    </div>
+                </div>
+
+                <button id="btn-start" class="action-btn confirm-btn" style="margin-top: 15px;">Start Game</button>
+            </div>
+
+            <!-- IN-GAME VIEW -->
+            <div id="game-view" style="display: none;">
+                <h3 id="current-turn-header" style="color: #e0af68; margin-bottom: 10px; text-align: center; text-transform: uppercase;"></h3>
+                
+                <div id="bases-container" class="bases-hud" style="display: none;">
+                    <div class="base-icon" id="base-2"><span class="base-label">2</span></div>
+                    <div class="base-icon" id="base-3" style="position:relative; top: 15px; left: -15px;"><span class="base-label">3</span></div>
+                    <div class="base-icon" id="base-1" style="position:relative; top: 15px; left: 15px;"><span class="base-label">1</span></div>
+                </div>
+
+                <div class="scoreboard" id="scoreboard"></div>
+                
+                <p id="stats-line" style="text-align: center; color: #a9b1d6; font-size: 0.9em; margin-bottom: 15px; font-weight: bold;"></p>
+
+                <button id="btn-pitch" class="action-btn confirm-btn">⚾ Throw Pitch</button>
+                <button id="btn-mid-push" class="action-btn" style="background: #565f89; color: white; display: none;">Push Update to Chat</button>
+            </div>
+
+            <!-- END VIEW -->
+            <div id="end-view" style="display: none;">
+                <h3 style="color: #f7768e; text-align: center; margin-bottom: 15px;">Game Over</h3>
+                <textarea id="end-rp-text" placeholder="Add custom roleplay text here..." style="min-height: 80px; margin-bottom: 10px;"></textarea>
+                <button id="btn-push-final" class="action-btn confirm-btn">Push Final Results</button>
+                <button id="btn-restart" class="action-btn reset-btn">Play Again</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: ARENA -->
+        <div class="panel right-panel" id="arena-panel" style="display: none;">
+            <div class="game-status-text" id="status-text">Waiting for pitch...</div>
+            <div class="bb-arena" id="arena">
+                <div class="bb-batter">🧍</div>
+                
+                <div class="bb-strikezone">
+                    <div class="bb-box" id="box-0">HIGH</div>
+                    <div class="bb-box" id="box-1">MID</div>
+                    <div class="bb-box" id="box-2">LOW</div>
+                </div>
+
+                <div class="bb-pitcher" id="pitcher">🧍</div>
+                <div class="bb-ball" id="ball"></div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="st_bridge.js"></script>
+    <script src="baseball.js"></script>
+</body>
+</html>
