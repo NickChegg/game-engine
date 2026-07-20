@@ -1,0 +1,127 @@
+<!-- --- START OF FILE index.html --- -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Voyager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- MAIN COCKPIT VIEW -->
+    <div id="cockpit-screen">
+        <div id="hud-top">
+            <span class="hud-label">CURRENT LOCATION</span>
+            <div id="ui-location">Deep Space</div>
+            <div id="ui-status">FUEL: <span id="ui-fuel">FULL</span> | HULL: <span id="ui-hull">MAX</span></div>
+        </div>
+
+        <div id="hud-right">
+            <button id="btn-go-outside" class="hud-btn" style="border-color: #ffaa00; color: #ffaa00;">GO OUTSIDE</button>
+            <button id="btn-roleplay" class="hud-btn">SHIP COMMS</button>
+        </div>
+
+        <div id="hud-bottom-left">
+            <div id="mini-map" class="hud-panel">
+                <div style="text-align: center; margin-top: 25%;">[ OPEN MAP ]</div>
+            </div>
+        </div>
+
+        <div id="hud-bottom-right">
+            <button id="btn-open-log" class="hud-btn">CAPTAIN'S LOG</button>
+            <button id="btn-open-index" class="hud-btn">CODEX INDEX</button>
+        </div>
+    </div>
+
+    <!-- MAP WINDOW -->
+    <div id="window-map" class="in-window">
+        <div class="window-header">
+            <span>NAVIGATION CONSOLE</span>
+            
+            <!-- Map Search Feature -->
+            <div style="position: relative;">
+                <input type="text" id="map-search" placeholder="Search Systems & Planets..." style="margin:0; width: 250px; padding: 4px; font-size: 12px; height: 25px;">
+                <div id="map-search-results"></div>
+            </div>
+
+            <button class="btn-close" data-target="window-map">X</button>
+        </div>
+        <div class="window-body" style="position: relative;">
+            <div id="map-breadcrumbs">Macro Galaxy</div>
+            
+            <!-- Warp Alert Overlay (When looking at a system you aren't in) -->
+            <div id="sys-warp-overlay" style="display: none;">
+                <p>SYSTEM OUT OF RANGE</p>
+                <button id="btn-warp-system" class="hud-btn" style="border-color:#ffaa00; color:#ffaa00;">WARP TO SYSTEM</button>
+            </div>
+
+            <div id="map-container"></div>
+            
+            <div id="scan-panel" style="display: none;">
+                <h3 id="scan-title">Target</h3>
+                <div id="scan-data"></div>
+                <button id="btn-scan" class="hud-btn">SCAN BODY</button>
+                <button id="btn-orbit" class="hud-btn">ORBIT PLANET</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROLEPLAY WINDOW -->
+    <div id="window-rp" class="in-window rp-window">
+        <div class="window-header rp-header">
+            <span id="rp-window-title">COMMUNICATIONS TERMINAL</span>
+        </div>
+        <div class="window-body rp-body">
+            <div id="chat-log" class="chat-log-container"></div>
+            <div class="rp-input-area">
+                <textarea id="rp-input" placeholder="Type your action or dialogue here..."></textarea>
+                <div class="rp-controls">
+                    <button id="btn-send-rp" class="hud-btn rp-btn-send">TRANSMIT</button>
+                    <button id="btn-return-ship" class="hud-btn rp-btn-exit">CLOSE TERMINAL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CAPTAIN'S LOG WINDOW -->
+    <div id="window-log" class="in-window">
+        <div class="window-header">
+            <span id="log-window-title">CAPTAIN'S LOG (NEW ENTRY)</span>
+            <button class="btn-close" data-target="window-log" id="btn-log-close">X</button>
+        </div>
+        <div class="window-body" style="display: flex; flex-direction: column; height: 100%;">
+            <input type="text" id="codex-name" placeholder="Entity Name (Trigger Word) *Required">
+            <input type="text" id="codex-tags" placeholder="Short tags (e.g. Friendly / Blacksmith)">
+            <textarea id="codex-desc" placeholder="Full lore description..." style="flex-grow: 1;"></textarea>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button id="btn-autogen-codex" class="hud-btn" style="flex: 1; border-color: #aa55ff; color: #aa55ff; margin: 0;">AUTO-GENERATE DESC</button>
+                <button id="btn-save-codex" class="hud-btn" style="flex: 1; margin: 0;">SAVE TO CODEX</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CODEX INDEX WINDOW -->
+    <div id="window-index" class="in-window">
+        <div class="window-header">
+            <span>CODEX INDEX</span>
+            <button class="btn-close" data-target="window-index">X</button>
+        </div>
+        <div class="window-body">
+            <div id="codex-list"></div>
+        </div>
+    </div>
+
+    <!-- EXCURSION RETURN SUMMARY -->
+    <div id="modal-return" class="in-window" style="width: 400px; height: auto; top: 30%; left: 35%;">
+        <div class="window-header"><span>SYSTEM ANALYSIS</span></div>
+        <div class="window-body" style="text-align: center;">
+            <p>Analyzing recent Excursion logs...</p>
+            <div id="modal-suggestions" style="margin: 20px 0;">[ COMMUNICATING WITH AI ]</div>
+            <button class="hud-btn btn-close" data-target="modal-return" style="width: 100%; margin: 0;">DISMISS</button>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
