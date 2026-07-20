@@ -99,7 +99,6 @@ body {
 .chat-msg-ai { align-self: flex-start; background: #252528; border-bottom-left-radius: 0; }
 .chat-msg-sys { align-self: center; background: transparent; color: #888; font-style: italic; font-size: 13px; text-align: center; border: 1px dashed #444; }
 
-/* Chat Custom Formatting */
 .rp-asterisk { color: #aaddff; font-style: italic; opacity: 0.9; }
 .rp-quote { color: #ffaa00; font-weight: 500; }
 
@@ -112,10 +111,25 @@ body {
 .rp-btn-exit { background: #4d1a1a; border-color: #ff4d4d; color: #fff; text-shadow: none; box-shadow: none; flex-grow: 1; margin: 0; }
 .rp-btn-exit:hover { background: #ff4d4d; }
 
-/* INPUTS */
-input, textarea { width: 100%; background: #001100; color: var(--neon-green); border: 1px solid var(--neon-green); padding: 10px; margin-bottom: 10px; font-family: inherit; box-sizing: border-box; }
+/* INPUTS & TOOLTIPS */
+.input-wrapper { position: relative; margin-bottom: 10px; display: flex; align-items: stretch; }
+.input-wrapper input, .input-wrapper textarea { margin-bottom: 0; flex-grow: 1; border-right: none; }
+input, textarea { width: 100%; background: #001100; color: var(--neon-green); border: 1px solid var(--neon-green); padding: 10px; font-family: inherit; box-sizing: border-box; }
 textarea { resize: none; }
 input:focus, textarea:focus { outline: none; box-shadow: 0 0 5px var(--neon-green); }
+
+.help-icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; background: #001100; border: 1px solid var(--neon-green);
+    color: var(--neon-green); font-weight: bold; cursor: help; position: relative;
+}
+.help-icon:hover { background: var(--dark-green); color: #fff; }
+.help-icon:hover::after {
+    content: attr(data-tooltip); position: absolute; right: 50px; top: 0; width: 280px;
+    background: #051505; border: 1px solid var(--neon-green); padding: 10px;
+    color: #fff; font-size: 13px; z-index: 1000; font-weight: normal; text-align: left;
+    box-shadow: 0 0 10px #000; pointer-events: none; text-shadow: none; line-height: 1.4;
+}
 
 /* DIMMED CODEX ENTRIES */
 .codex-entry-name { font-size: 18px; color: #88ff88; text-shadow: 0 0 3px rgba(136, 255, 136, 0.5); font-weight: bold; }

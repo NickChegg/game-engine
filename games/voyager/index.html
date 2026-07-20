@@ -38,7 +38,6 @@
         <div class="window-header">
             <span>NAVIGATION CONSOLE</span>
             
-            <!-- Map Search Feature -->
             <div style="position: relative;">
                 <input type="text" id="map-search" placeholder="Search Systems & Planets..." style="margin:0; width: 250px; padding: 4px; font-size: 12px; height: 25px;">
                 <div id="map-search-results"></div>
@@ -49,7 +48,6 @@
         <div class="window-body" style="position: relative;">
             <div id="map-breadcrumbs">Macro Galaxy</div>
             
-            <!-- Warp Alert Overlay (When looking at a system you aren't in) -->
             <div id="sys-warp-overlay" style="display: none;">
                 <p>SYSTEM OUT OF RANGE</p>
                 <button id="btn-warp-system" class="hud-btn" style="border-color:#ffaa00; color:#ffaa00;">WARP TO SYSTEM</button>
@@ -90,9 +88,22 @@
             <button class="btn-close" data-target="window-log" id="btn-log-close">X</button>
         </div>
         <div class="window-body" style="display: flex; flex-direction: column; height: 100%;">
-            <input type="text" id="codex-name" placeholder="Entity Name (Trigger Word) *Required">
-            <input type="text" id="codex-tags" placeholder="Short tags (e.g. Friendly / Blacksmith)">
-            <textarea id="codex-desc" placeholder="Full lore description..." style="flex-grow: 1;"></textarea>
+            
+            <!-- Tooltip Wrappers -->
+            <div class="input-wrapper">
+                <input type="text" id="codex-name" placeholder="Entity Name (Trigger Word) *Required">
+                <span class="help-icon" data-tooltip="The trigger word(s) that inject this lore. Separate multiple words with commas (e.g., Leia, Princess, Her Highness).">?</span>
+            </div>
+            
+            <div class="input-wrapper">
+                <input type="text" id="codex-tags" placeholder="Short tags (e.g. Friendly, Spiteful, Lover)">
+                <span class="help-icon" data-tooltip="Used to flavor the interaction. Include relational or dispositional traits (e.g., Hostile, Lover, Stubborn). DO NOT use generic nouns like 'Android' here.">?</span>
+            </div>
+            
+            <div class="input-wrapper" style="flex-grow: 1;">
+                <textarea id="codex-desc" placeholder="Full lore description..."></textarea>
+                <span class="help-icon" data-tooltip="A concise, factual summary of the entity's permanent traits and core identity. Keep it brief to save memory.">?</span>
+            </div>
             
             <div style="display: flex; gap: 10px; margin-top: 10px;">
                 <button id="btn-autogen-codex" class="hud-btn" style="flex: 1; border-color: #aa55ff; color: #aa55ff; margin: 0;">AUTO-GENERATE DESC</button>

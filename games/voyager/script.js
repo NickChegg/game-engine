@@ -11,7 +11,7 @@ let gameState = {
     locationState: "Deep Space", 
     currentSystemId: null,
     currentPlanet: null,
-    sectors: {}, // NEW: Stores generated stars in sectors to keep them locked in
+    sectors: {}, 
     systems: {},
     codex: [],
     availableNames: null
@@ -35,7 +35,6 @@ window.addEventListener("message", (event) => {
             else if (localSave) { gameState = localSave; } 
             else { saveGame(); }
             
-            // Backwards compatibility check for old saves missing the sectors object
             if (!gameState.sectors) gameState.sectors = {};
             
             updateUI(); drawMacroMap();
@@ -233,25 +232,34 @@ function renderChatLog(chatArray) {
 function sendLLMMessage(actionText) {
     let finalMessage = `[Current Location: ${gameState.locationState}]\n\n` + actionText;
     let injectedLore = [];
+    let injectedNames = new Set();
     
+    // 1. Scan for explicit trigger words in the user's text
     gameState.codex.forEach(entry => {
-        // Handle multiple trigger words separated by commas
         let triggers = entry.name.split(',').map(t => t.trim()).filter(t => t.length > 0);
-        
-        // Check if ANY of the trigger words are found in the user's message
         let isTriggered = triggers.some(trigger => {
-            // Escape any special regex characters just in case
             let safeTrigger = trigger.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             let regex = new RegExp(`\\b${safeTrigger}\\b`, 'i');
             return regex.test(actionText);
         });
 
         if (isTriggered) {
-            // Display the primary name (the first item in the list) in the prompt injection
             let primaryName = triggers[0];
             injectedLore.push(`${primaryName} (${entry.tags}): ${entry.desc}`);
+            injectedNames.add(primaryName);
         }
     });
+
+    // 2. Auto-inject current planet lore if in orbit or on excursion
+    if (gameState.currentPlanet && (gameState.locationState.startsWith("Orbit:") || (gameState.locationState.startsWith("Excursion:") && gameState.locationState !== "Excursion: Spacewalk"))) {
+        let currentPlanetName = gameState.currentPlanet.name;
+        
+        let planetEntry = gameState.codex.find(e => e.name.split(',')[0].trim() === currentPlanetName);
+        if (planetEntry && !injectedNames.has(currentPlanetName)) {
+            injectedLore.push(`${currentPlanetName} (${planetEntry.tags}): ${planetEntry.desc}`);
+            injectedNames.add(currentPlanetName);
+        }
+    }
 
     if (injectedLore.length > 0) finalMessage += `\n\n[System Note - Memory Recall:\n${injectedLore.join('\n')}]`;
 
@@ -324,12 +332,13 @@ document.getElementById("btn-autogen-codex").addEventListener("click", () => {
     document.getElementById("codex-tags").value = "Generating tags...";
     document.getElementById("codex-desc").value = "Generating description... Please wait.";
     
-    let primaryName = name.split(',')[0].trim(); // Just give the AI the primary name
+    let primaryName = name.split(',')[0].trim(); 
     
     const prompt = `Analyze the recent roleplay and write a strictly factual, highly condensed database entry for the entity named '${primaryName}'.
-CRITICAL INSTRUCTIONS: Keep it bare-bones. State ONLY their core identity, primary function, and permanent attributes. DO NOT include lists of transient ideas, past conversational topics, or temporary actions. Limit to 2-3 short sentences.
+CRITICAL INSTRUCTIONS: Keep the description bare-bones. State ONLY their core identity, primary function, and permanent attributes. DO NOT include lists of transient ideas or past conversational topics.
+For TAGS, focus exclusively on personality, disposition, and relationship to the player. Do NOT use tags for objective nouns (like "Android", "AI", "Ship")—put those facts in the description instead.
 Output EXACTLY using these markers:
-[TAGS] Short comma-separated tags (e.g. AI, Crew Member, Planet, Weapon) [/TAGS]
+[TAGS] Short comma-separated relationship/personality tags (e.g., Friendly, Sarcastic, Merchant, Hostile, Lover) [/TAGS]
 [DESC] The highly condensed, purely factual description. [/DESC]`;
 
     window.opener.postMessage({ type: "BACKGROUND_PROMPT", prompt: prompt, useContext: true, taskId: "codex_autogen" }, "*");
@@ -429,7 +438,6 @@ function drawMacroMap() {
     document.getElementById("sys-warp-overlay").style.display = "none";
     mapContainer.innerHTML = "";
     
-    // Always render all 100 sectors to avoid flashing
     for(let x=0; x<10; x++) {
         for(let y=0; y<10; y++) {
             let cell = document.createElement("div");
@@ -451,7 +459,6 @@ function drawSectorMap(x, y) {
 
     let secId = `${x}-${y}`;
     
-    // Lock in sector stars the first time they are viewed
     if (!gameState.sectors[secId]) {
         let numStars = 1 + Math.floor(Math.random() * 4);
         let stars = [];
@@ -466,7 +473,6 @@ function drawSectorMap(x, y) {
         saveGame();
     }
 
-    // Render stars from locked-in state
     gameState.sectors[secId].forEach(starData => {
         let star = document.createElement("div");
         star.className = "star-icon";
@@ -568,7 +574,7 @@ function selectPlanet(planet, systemName) {
     if (planet.scanned) {
         document.getElementById("btn-scan").style.display = "none";
         document.getElementById("btn-orbit").style.display = "block";
-        document.getElementById("scan-data").innerHTML = `<p>BIOME: ${planet.biome}<br>POPULATION: ${planet.type}<br>${planet.biology ? 'BIO: '+planet.biology : ''}</p>`;
+        document.getElementById("scan-data").innerHTML = `<p>BIOME: ${planet.biome}<br>POPULATION: ${planet.type}<br>${planet.biology ? 'CULTURE: '+planet.biology : ''}</p>`;
     } else {
         document.getElementById("btn-scan").style.display = "block";
         document.getElementById("btn-orbit").style.display = "none";
@@ -587,11 +593,11 @@ document.getElementById("btn-scan").addEventListener("click", () => {
     if (activePlanetObj.type === "Occupied") {
         let optBio = Math.random() < 0.2 ? ` (${getRandomListEntry('biologyDetail2IF')})` : "";
         let optFlaw = Math.random() < 0.2 ? ` Flaw: ${getRandomListEntry('flawIF')}` : "";
-        activePlanetObj.biology = `${getRandomListEntry('baseBiology')} [${getRandomListEntry('biologyDetail1')}]${optBio}. Gov: ${getRandomListEntry('government')} / ${getRandomListEntry('coreValue')}.${optFlaw}`;
+        activePlanetObj.biology = `Tech Level: ${getRandomListEntry('technology')} | Bio: ${getRandomListEntry('baseBiology')} [${getRandomListEntry('biologyDetail1')}]${optBio} | Gov: ${getRandomListEntry('government')} (${getRandomListEntry('coreValue')})${optFlaw}`;
     }
 
     let autoDesc = `Biome: ${activePlanetObj.biome}\nPopulation: ${activePlanetObj.type}`;
-    if (activePlanetObj.biology) autoDesc += `\nBiology & Culture: ${activePlanetObj.biology}`;
+    if (activePlanetObj.biology) autoDesc += `\nCulture: ${activePlanetObj.biology}`;
     
     gameState.codex.push({
         name: activePlanetObj.name,
