@@ -47,7 +47,6 @@ window.addEventListener("message", (event) => {
         // --- BACKGROUND AI PARSER ---
         if (event.data.event === "BACKGROUND_RESPONSE") {
             
-            // 1. Excursion Summary Parser
             if (event.data.taskId === "excursion_summary") {
                 const suggDiv = document.getElementById("modal-suggestions");
                 suggDiv.innerHTML = "";
@@ -88,7 +87,6 @@ window.addEventListener("message", (event) => {
                 }
             }
             
-            // 2. Codex Auto-Generator Parser
             if (event.data.taskId === "codex_autogen") {
                 try {
                     let tagsMatch = event.data.result.match(/\[TAGS\]([\s\S]*?)\[\/TAGS\]/i);
@@ -157,11 +155,29 @@ document.getElementById("btn-open-log").addEventListener("click", () => {
 
 document.getElementById("btn-open-index").addEventListener("click", () => openWindow("window-index"));
 
+
 // --- HUD & MECHANICS ---
+
+// Refuel / Repair Buttons
+document.getElementById("btn-refuel").addEventListener("click", () => {
+    gameState.fuel = 100; saveGame(); updateUI();
+});
+document.getElementById("btn-repair").addEventListener("click", () => {
+    gameState.hull = 100; saveGame(); updateUI();
+});
+
 function jumpSystem() {
-    gameState.fuel -= (3 + Math.floor(Math.random() * 3));
-    if (gameState.fuel < 0) gameState.fuel = 0;
+    let cost = 3 + Math.floor(Math.random() * 3);
+    if (gameState.fuel < cost) {
+        return false; // Prevent jump
+    }
+    gameState.fuel -= cost;
+    
+    // Clear stale planet data since we left the system
+    gameState.currentPlanet = null; 
+    
     saveGame();
+    return true; // Jump successful
 }
 
 function updateUI() {
@@ -187,7 +203,7 @@ function updateUI() {
 
 // FORMAT CHAT LOG TEXT
 function formatChatText(text) {
-    let cleanText = text.replace(/\[Current Location:[^\]]+\]\s*/gi, '');
+    let cleanText = text.replace(/\[Loc:[^\]]+\]\s*/gi, ''); // Condensed regex
     cleanText = cleanText.replace(/\[System Note[^\]]+\]\s*/gi, '');
     cleanText = cleanText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     
@@ -230,11 +246,12 @@ function renderChatLog(chatArray) {
 }
 
 function sendLLMMessage(actionText) {
-    let finalMessage = `[Current Location: ${gameState.locationState}]\n\n` + actionText;
+    // Condensed Location Injector to save ST Context Memory
+    let finalMessage = `[Loc: ${gameState.locationState}]\n\n` + actionText;
+    
     let injectedLore = [];
     let injectedNames = new Set();
     
-    // 1. Scan for explicit trigger words in the user's text
     gameState.codex.forEach(entry => {
         let triggers = entry.name.split(',').map(t => t.trim()).filter(t => t.length > 0);
         let isTriggered = triggers.some(trigger => {
@@ -250,7 +267,6 @@ function sendLLMMessage(actionText) {
         }
     });
 
-    // 2. Auto-inject current planet lore if in orbit or on excursion
     if (gameState.currentPlanet && (gameState.locationState.startsWith("Orbit:") || (gameState.locationState.startsWith("Excursion:") && gameState.locationState !== "Excursion: Spacewalk"))) {
         let currentPlanetName = gameState.currentPlanet.name;
         
@@ -271,6 +287,7 @@ function sendLLMMessage(actionText) {
 document.getElementById("btn-go-outside").addEventListener("click", () => {
     if (gameState.locationState === "Deep Space" || gameState.locationState.startsWith("System:")) {
         gameState.locationState = "Excursion: Spacewalk";
+        gameState.currentPlanet = null; // Ensure stale planet data doesn't bleed in
         saveGame(); updateUI();
         sendLLMMessage(`*I put on my EVA suit, leave the airlock, and step out into the vacuum of space.*`);
         openWindow("window-rp");
@@ -556,7 +573,11 @@ function drawSystemMap(sysId) {
 }
 
 document.getElementById("btn-warp-system").addEventListener("click", () => {
-    jumpSystem();
+    let success = jumpSystem();
+    if (!success) {
+        alert("CRITICAL WARNING: Insufficient Quantum Fuel for Warp Jump. Must Refuel.");
+        return;
+    }
     gameState.currentSystemId = viewingSystemId;
     gameState.locationState = `System: ${gameState.systems[viewingSystemId].name}`;
     saveGame();
@@ -574,7 +595,7 @@ function selectPlanet(planet, systemName) {
     if (planet.scanned) {
         document.getElementById("btn-scan").style.display = "none";
         document.getElementById("btn-orbit").style.display = "block";
-        document.getElementById("scan-data").innerHTML = `<p>BIOME: ${planet.biome}<br>POPULATION: ${planet.type}<br>${planet.biology ? 'CULTURE: '+planet.biology : ''}</p>`;
+        document.getElementById("scan-data").innerHTML = `<p>BIOME: ${planet.biome}<br>POPULATION: ${planet.type}<br>${planet.biology ? 'BIO: '+planet.biology : ''}</p>`;
     } else {
         document.getElementById("btn-scan").style.display = "block";
         document.getElementById("btn-orbit").style.display = "none";
