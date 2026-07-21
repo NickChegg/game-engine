@@ -9,6 +9,11 @@ A SillyTavern extension that hosts modular, UI-driven minigames in a pop-out win
 5. Restart SillyTavern.
 
 ## How to Play
+
+## For Party Games
 1. In the Extensions menu, open the **Game Engine** settings block.
 2. Type `partygames` into the "New game folder..." box and click **Add**.
 3. Select `partygames` from the dropdown and click **Open**.
+
+## For Voyager
+Same as above, replace 'partygames' with 'voyager'. 
