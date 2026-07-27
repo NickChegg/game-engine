@@ -1,6 +1,9 @@
 # SillyTavern Game Engine
 A SillyTavern extension that hosts modular, UI-driven minigames in a pop-out window, feeding the results seamlessly to the LLM for roleplay.
 
+If you like what I'm doing and want to support or request something, I'd appreciate it. 
+https://ko-fi.com/nickchegg
+
 ## How to Install
 1. Open SillyTavern.
 2. Go to the Extensions menu (the Blocks icon).
