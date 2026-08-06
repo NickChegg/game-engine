@@ -352,7 +352,7 @@ document.getElementById("btn-autogen-codex").addEventListener("click", () => {
     let primaryName = name.split(',')[0].trim(); 
     
     const prompt = `Analyze the recent roleplay and write a strictly factual, highly condensed database entry for the entity named '${primaryName}'.
-CRITICAL INSTRUCTIONS: Keep the description bare-bones. State ONLY their core identity, primary function, and permanent attributes. DO NOT include lists of transient ideas or past conversational topics.
+CRITICAL INSTRUCTIONS: Keep the description bare-bones. State ONLY their core identity, primary function, appearance, personality and permanent attributes. DO NOT include lists of transient ideas or past conversational topics.
 For TAGS, focus exclusively on personality, disposition, and relationship to the player. Do NOT use tags for objective nouns (like "Android", "AI", "Ship")—put those facts in the description instead.
 Output EXACTLY using these markers:
 [TAGS] Short comma-separated relationship/personality tags (e.g., Friendly, Sarcastic, Merchant, Hostile, Lover) [/TAGS]

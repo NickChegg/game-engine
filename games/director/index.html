@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Setting Director</title>
+    <style>
+        :root {
+            --bg: #131722; --panel: #1e2330; --text: #e0e0e0;
+            --accent: #4a9eff; --accent-hover: #3a8ee0; --border: #333;
+        }
+        body {
+            font-family: system-ui, sans-serif; background-color: var(--bg); color: var(--text);
+            margin: 0; padding: 15px; display: flex; flex-direction: column; gap: 12px;
+            box-sizing: border-box; height: 100vh; overflow-y: auto;
+        }
+        .master-btn {
+            background: #333; border: none; color: white; padding: 12px;
+            font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold;
+            transition: 0.2s; width: 100%; text-align: center; flex-shrink: 0;
+        }
+        .master-btn.on { background: #00ffaa; color: #000; box-shadow: 0 0 10px rgba(0,255,170,0.4); }
+        
+        fieldset {
+            border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin: 0;
+            background: var(--panel);
+        }
+        legend { font-weight: bold; font-size: 0.85em; color: var(--accent); padding: 0 5px; }
+        
+        .control-group { margin-bottom: 8px; }
+        .control-group:last-child { margin-bottom: 0; }
+        
+        select, input[type="text"] {
+            width: 100%; padding: 6px; margin-top: 4px; background: #0b0f19;
+            color: white; border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box;
+        }
+        select:focus, input:focus { outline: none; border-color: var(--accent); }
+        select:disabled, input:disabled { opacity: 0.4; cursor: not-allowed; }
+        
+        .hidden { display: none !important; }
+        .hint { font-size: 0.8em; color: #888; margin-top: 4px; }
+        
+        .row-flex { display: flex; align-items: center; gap: 8px; font-size: 0.9em; }
+        input[type="checkbox"] { cursor: pointer; transform: scale(1.1); margin: 0; }
+    </style>
+</head>
+<body>
+
+    <button id="master-toggle" class="master-btn">Director OFF</button>
+
+    <!-- TIME CONTEXT -->
+    <fieldset>
+        <legend>Time Context</legend>
+        <select id="time-mode-select">
+            <option value="real">Real-Time (System Clock)</option>
+            <option value="custom">Custom Time/Date</option>
+            <option value="general">General Time of Day</option>
+            <option value="off">Disabled (No Time)</option>
+        </select>
+        <div id="ui-real" class="hint">Injects your actual local time & date.</div>
+        <div id="ui-custom" class="hidden"><input type="text" id="custom-time-input" placeholder="e.g., 3:00 PM, Year 2045"></div>
+        <div id="ui-general" class="hidden">
+            <select id="general-time-select">
+                <option value="Dawn">Dawn</option><option value="Early Morning">Early Morning</option>
+                <option value="Late Morning">Late Morning</option><option value="Noon">Noon</option>
+                <option value="Afternoon">Afternoon</option><option value="Dusk">Dusk / Sunset</option>
+                <option value="Evening">Evening</option><option value="Midnight">Midnight</option>
+                <option value="Deep Night">Deep Night</option>
+            </select>
+        </div>
+    </fieldset>
+
+    <!-- LOCATION & LIGHTING -->
+    <fieldset>
+        <legend>Location & Sight</legend>
+        <div class="control-group">
+            <label class="row-flex"><input type="checkbox" id="location-toggle"> Location</label>
+            <input type="text" id="location-input" placeholder="e.g., The Rusty Dragon Tavern" disabled>
+        </div>
+        <div class="control-group">
+            <label class="row-flex"><input type="checkbox" id="light-toggle"> Lighting</label>
+            <select id="light-select" disabled>
+                <option value="Blind Darkness">Blind Darkness</option>
+                <option value="Pitch Black">Pitch Black</option>
+                <option value="Shadowy / Dim">Shadowy / Dim</option>
+                <option value="Flickering / Low Light">Flickering / Low Light</option>
+                <option value="Clear / Well-Lit">Clear / Well-Lit</option>
+                <option value="Bright">Bright</option>
+                <option value="Blindingly Bright">Blindingly Bright</option>
+            </select>
+        </div>
+    </fieldset>
+
+    <!-- CLIMATE & WEATHER -->
+    <fieldset>
+        <legend>Climate & Weather</legend>
+        <div class="control-group">
+            <label class="row-flex"><input type="checkbox" id="season-toggle"> Season</label>
+            <select id="season-select" disabled>
+                <option value="Spring">Spring</option>
+                <option value="Summer">Summer</option>
+                <option value="Autumn">Autumn</option>
+                <option value="Winter">Winter</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label class="row-flex"><input type="checkbox" id="temp-toggle"> Temperature</label>
+            <select id="temp-select" disabled>
+                <option value="Dangerously Freezing">Dangerously Freezing</option>
+                <option value="Freezing / Biting Cold">Freezing / Biting Cold</option>
+                <option value="Cold / Chilly">Cold / Chilly</option>
+                <option value="Cool / Crisp">Cool / Crisp</option>
+                <option value="Mild / Comfortable">Mild / Comfortable</option>
+                <option value="Warm">Warm</option>
+                <option value="Hot / Sweating">Hot / Sweating</option>
+                <option value="Blisteringly Hot">Blisteringly Hot</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label class="row-flex"><input type="checkbox" id="weather-toggle"> Weather</label>
+            <select id="weather-select" disabled>
+                <option value="Clear / Sunny">Clear / Sunny</option>
+                <option value="Overcast / Cloudy">Overcast / Cloudy</option>
+                <option value="Light Rain">Light Rain</option>
+                <option value="Heavy Rain">Heavy Rain</option>
+                <option value="Thunderstorm">Thunderstorm</option>
+                <option value="Foggy / Misty">Foggy / Misty</option>
+                <option value="Light Snow">Light Snow</option>
+                <option value="Blizzard">Blizzard</option>
+                <option value="Sandstorm">Sandstorm</option>
+            </select>
+        </div>
+    </fieldset>
+
+    <script src="engine.js" type="module"></script>
+</body>
+</html>
